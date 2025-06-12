@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
+  <!-- Background circle -->
+  <circle cx="16" cy="16" r="15" fill="#3B82F6" stroke="#1D4ED8" stroke-width="2"/>
+  
+  <!-- CS text -->
+  <text x="7" y="20" font-family="Arial, sans-serif" font-size="10" font-weight="bold" fill="white">CS</text>
+  
+  <!-- 25 text -->
+  <text x="7" y="28" font-family="Arial, sans-serif" font-size="6" font-weight="bold" fill="#E0F2FE">25</text>
+  
+  <!-- Decorative element -->
+  <circle cx="24" cy="10" r="2" fill="#60A5FA" opacity="0.8"/>
+  <circle cx="26" cy="14" r="1.5" fill="#93C5FD" opacity="0.6"/>
+</svg>
