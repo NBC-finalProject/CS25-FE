@@ -18,11 +18,11 @@ const TodayEmailFormSection: React.FC = () => {
           </div>
           
           <h2 className="text-3xl md:text-4xl font-bold mb-6 text-gray-900">
-            매일 받게 될 <span className="bg-gradient-to-r from-brand-600 to-navy-600 bg-clip-text text-transparent">CS 메일</span>
+            매일 받게 될 <span className="bg-gradient-to-r from-brand-600 to-navy-600 bg-clip-text text-transparent">CS 지식</span>
           </h2>
           
           <p className="text-lg text-gray-600 leading-relaxed mb-8">
-            이런 형태의 맞춤형 메일을 매일 받아보실 수 있습니다
+            아래와 같은 형태의 맞춤형 메일을 받아보실 수 있습니다.
           </p>
         </div>
 

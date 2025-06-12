@@ -9,7 +9,7 @@ interface EmailTemplateProps {
 const EmailTemplate: React.FC<EmailTemplateProps> = ({ toEmail, quizLink }) => {
   const navigate = useNavigate();
   return (
-    <div className="font-pretendard bg-gray-100 p-10">
+    <div className="font-pretendard p-10">
       <div className="max-w-2xl mx-auto bg-white rounded-2xl shadow-lg overflow-hidden">
         {/* Header with Logo */}
         <div className="bg-gradient-to-r from-brand-500 to-brand-600 p-8 text-center">

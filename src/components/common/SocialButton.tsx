@@ -2,11 +2,11 @@ import React from 'react';
 
 interface SocialButtonProps {
   provider: 'kakao' | 'github' | 'naver';
-  href: string;
+  onClick: () => void;
   children: React.ReactNode;
 }
 
-const SocialButton: React.FC<SocialButtonProps> = ({ provider, href, children }) => {
+const SocialButton: React.FC<SocialButtonProps> = ({ provider, onClick, children }) => {
   const getButtonStyles = () => {
     switch (provider) {
       case 'kakao':
@@ -19,12 +19,12 @@ const SocialButton: React.FC<SocialButtonProps> = ({ provider, href, children })
   };
 
   return (
-    <a 
-      href={href} 
+    <button 
+      onClick={onClick}
       className={`block w-full mb-3 px-5 py-4 text-base font-medium border rounded-xl transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg shadow-sm ${getButtonStyles()}`}
     >
       {children}
-    </a>
+    </button>
   );
 };
 

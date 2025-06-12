@@ -1,11 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useLoginModal } from '../../hooks/useModal';
 
-interface HeaderProps {
-  onLoginClick: () => void;
-}
-
-const Header: React.FC<HeaderProps> = ({ onLoginClick }) => {
+const Header: React.FC = () => {
+  const { openLoginModal } = useLoginModal();
   const [isScrolled, setIsScrolled] = useState(false);
   const navigate = useNavigate();
 
@@ -46,7 +44,7 @@ const Header: React.FC<HeaderProps> = ({ onLoginClick }) => {
         </div>
         
         <button
-          onClick={onLoginClick}
+          onClick={openLoginModal}
           className="px-6 py-2 rounded-lg font-medium transition-all duration-300 bg-gradient-to-r from-brand-500 to-brand-600 text-white hover:from-brand-600 hover:to-brand-700 shadow-sm"
         >
           로그인

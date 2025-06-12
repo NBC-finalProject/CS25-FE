@@ -1,46 +1,52 @@
 import { useState } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import LandingPage from './components/LandingPage';
 import QuizSection from './components/sections/QuizSection';
 import TodayEmailFormSection from './components/sections/TodayEmailFormSection';
-import SubscriptionPage from './components/SubscriptionPage';
 import VerificationEmailPage from './components/VerificationEmailPage';
 import Header from './components/common/Header';
 import Footer from './components/common/Footer';
 import SubscriptionModal from './components/common/SubscriptionModal';
-import LoginForm from './components/common/LoginForm';
-import Modal from './components/common/Modal';
+import { ModalProvider } from './contexts/ModalContext';
+import ModalManager from './components/common/ModalManager';
 import './App.css';
+
+// React Query client 생성
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 1000 * 60 * 5, // 5분
+      refetchOnWindowFocus: false,
+    },
+  },
+});
 
 function App() {
   const [isSubscriptionModalOpen, setIsSubscriptionModalOpen] = useState(false);
-  const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
 
   return (
-    <div className="App">
-      <Router>
-        <Header onLoginClick={() => setIsLoginModalOpen(true)} />
-        <Routes>
-          <Route path="/" element={<LandingPage onSubscribeClick={() => setIsSubscriptionModalOpen(true)} />} />
-          <Route path="/quiz" element={<QuizSection />} />
-          <Route path="/mailform" element={<TodayEmailFormSection />} />
-          <Route path="/subscription" element={<SubscriptionPage />} />
-          <Route path="/verification-email" element={<VerificationEmailPage />} />
-        </Routes>
-        <Footer />
-        <SubscriptionModal 
-          isOpen={isSubscriptionModalOpen} 
-          onClose={() => setIsSubscriptionModalOpen(false)} 
-        />
-        <Modal
-          isOpen={isLoginModalOpen}
-          onClose={() => setIsLoginModalOpen(false)}
-          title="로그인"
-        >
-          <LoginForm />
-        </Modal>
-      </Router>
-    </div>
+    <QueryClientProvider client={queryClient}>
+      <ModalProvider>
+        <div className="App">
+          <Router>
+            <Header />
+            <Routes>
+              <Route path="/" element={<LandingPage onSubscribeClick={() => setIsSubscriptionModalOpen(true)} />} />
+              <Route path="/quiz" element={<QuizSection />} />
+              <Route path="/mailform" element={<TodayEmailFormSection />} />
+              <Route path="/verification-email" element={<VerificationEmailPage />} />
+            </Routes>
+            <Footer />
+            <SubscriptionModal 
+              isOpen={isSubscriptionModalOpen} 
+              onClose={() => setIsSubscriptionModalOpen(false)} 
+            />
+            <ModalManager />
+          </Router>
+        </div>
+      </ModalProvider>
+    </QueryClientProvider>
   );
 }
 
