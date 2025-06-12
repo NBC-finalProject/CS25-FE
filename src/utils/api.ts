@@ -102,7 +102,9 @@ export const subscriptionAPI = {
 export const quizAPI = {
   // 퀴즈 카테고리 목록 조회
   getQuizCategories: async (): Promise<string[] | { data: string[] }> => {
-    return apiRequest('/quiz-categories');
+    return apiRequest('/quiz-categories', {
+      method: 'GET'
+    });
   },
 
   // 오늘의 퀴즈 조회
@@ -144,9 +146,7 @@ export const authAPI = {
 
   // 소셜 로그인
   socialLogin: async (provider: 'kakao' | 'github' | 'naver') => {
-    const url = `/oauth2/authorization/${provider}`;
-    const backendURI = "http://localhost:8080" // FIXME: 수정해야 함
-    window.location.href = backendURI + url;
+    window.location.href = `/oauth2/authorization/${provider}`;
   }
 };
 
