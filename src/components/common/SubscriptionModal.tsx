@@ -78,8 +78,8 @@ const SubscriptionModal: React.FC<SubscriptionModalProps> = ({ isOpen, onClose }
 
   const periods = [
     { id: 'ONE_MONTH', label: '1개월' },
-    { id: 'THREE_MONTH', label: '3개월' },
-    { id: 'SIX_MONTH', label: '6개월' },
+    { id: 'THREE_MONTHS', label: '3개월' },
+    { id: 'SIX_MONTHS', label: '6개월' },
     { id: 'ONE_YEAR', label: '1년' }
   ];
 
