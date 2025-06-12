@@ -146,7 +146,8 @@ export const authAPI = {
 
   // 소셜 로그인
   socialLogin: async (provider: 'kakao' | 'github' | 'naver') => {
-    window.location.href = `/oauth2/authorization/${provider}`;
+    const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:8080";
+    window.location.href = `${apiUrl}/oauth2/authorization/${provider}`;
   }
 };
 
