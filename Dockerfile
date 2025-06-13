@@ -25,9 +25,6 @@ RUN rm /etc/nginx/conf.d/default.conf
 # nginx 템플릿 복사
 COPY nginx.conf.template /etc/nginx/templates/
 
-# 환경변수 설정
-ENV BACKEND_URL=http://localhost:8080
-
 # 빌드된 정적 파일 복사
 COPY --from=builder /app/build /usr/share/nginx/html
 
