@@ -5,8 +5,6 @@ services:
     build: .
     ports:
       - "5173:80"
-    volumes:
-      - /etc/letsencrypt:/etc/letsencrypt:ro  #인증서 마운트
     networks:
       - app-network
 

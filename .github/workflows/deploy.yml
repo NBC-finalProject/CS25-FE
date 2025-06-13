@@ -30,6 +30,7 @@ jobs:
             sudo docker pull ${{secrets.DOCKERHUB_USERNAME}}/${{secrets.DOCKERHUB_REPO}}:latest
             sudo docker run \
               -e VITE_API_URL=${{ secrets.VITE_API_URL }} \
+              -v /etc/letsencrypt:/etc/letsencrypt:ro \
               -d -p 80:80 \
               --name ${{secrets.DOCKERHUB_REPO}} \
               ${{secrets.DOCKERHUB_USERNAME}}/${{secrets.DOCKERHUB_REPO}}:latest
