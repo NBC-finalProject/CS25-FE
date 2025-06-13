@@ -65,9 +65,6 @@ export const subscriptionAPI = {
   }) => {
     return apiRequest('/subscriptions', {
       method: 'POST',
-       headers: {
-        'Content-Type': 'application/json',
-      },
       body: JSON.stringify({
         ...data,
         isActive: true
@@ -77,7 +74,9 @@ export const subscriptionAPI = {
 
   // 구독 설정 조회
   getSubscriptionSettings: async (email: string, token: string) => {
-    return apiRequest(`/subscription/settings?email=${email}&token=${token}`);
+    return apiRequest(`/subscription/settings?email=${email}&token=${token}`, {
+      method: 'GET'
+    });
   },
 
   // 구독 설정 업데이트
@@ -109,7 +108,9 @@ export const quizAPI = {
 
   // 오늘의 퀴즈 조회
   getTodayQuiz: async () => {
-    return apiRequest('/quiz/today');
+    return apiRequest('/quiz/today', {
+      method: 'GET'
+    });
   },
 
   // 퀴즈 답안 제출
@@ -122,7 +123,9 @@ export const quizAPI = {
 
   // 사용자별 퀴즈 히스토리
   getUserQuizHistory: async (email: string, token: string) => {
-    return apiRequest(`/quiz/history?email=${email}&token=${token}`);
+    return apiRequest(`/quiz/history?email=${email}&token=${token}`, {
+      method: 'GET'
+    });
   },
 };
 
