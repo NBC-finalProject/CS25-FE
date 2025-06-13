@@ -13,7 +13,12 @@ RUN npm ci
 # 소스 코드 복사
 COPY . .
 
+# build-time ARG 정의
+ARG VITE_API_URL
+ENV VITE_API_URL=$VITE_API_URL
+
 # Vite로 빌드
+RUN echo "VITE_API_URL=$VITE_API_URL"
 RUN npm run build
 
 # 2단계: 프로덕션 스테이지
