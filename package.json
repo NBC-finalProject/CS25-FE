@@ -18,10 +18,11 @@
     "web-vitals": "^2.1.4"
   },
   "scripts": {
-    "dev": "vite",
     "build": "tsc && vite build",
     "preview": "vite preview",
-    "start": "vite"
+    "start": "vite",
+    "d-build": "docker build -t cs25-frontend . && docker run -d -p 80:80 --name cs25-front cs25-frontend",
+    "dev": "docker-compose down && docker-compose up --build"
   },
   "devDependencies": {
     "@types/node": "^20.19.0",
