@@ -27,7 +27,7 @@ export const useQuizCategories = (enabled: boolean = true) => {
 export const useTodayQuiz = () => {
   return useQuery({
     queryKey: quizKeys.today(),
-    queryFn: quizAPI.getTodayQuiz,
+    queryFn: () => quizAPI.getTodayQuiz(),
     staleTime: 1000 * 60 * 30, // 30분간 fresh
     retry: 1,
   });

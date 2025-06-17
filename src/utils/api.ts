@@ -1,6 +1,6 @@
 // API 유틸리티 함수들
 
-const API_BASE_URL = `${import.meta.env.VITE_API_URL}`;
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080';
 
 // 기본 fetch 래퍼
 async function apiRequest<T>(

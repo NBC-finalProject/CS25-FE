@@ -26,7 +26,7 @@ export const ModalProvider: React.FC<ModalProviderProps> = ({ children }) => {
   const [modals, setModals] = useState<ModalConfig[]>([]);
 
   const openModal = (config: Omit<ModalConfig, 'id'>): string => {
-    const id = Math.random().toString(36).substr(2, 9);
+    const id = Math.random().toString(36).substring(2, 11);
     const modal: ModalConfig = {
       ...config,
       id,
