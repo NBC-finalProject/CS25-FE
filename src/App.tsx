@@ -5,6 +5,7 @@ import LandingPage from './components/LandingPage';
 import QuizSection from './components/sections/QuizSection';
 import TodayEmailFormSection from './components/sections/TodayEmailFormSection';
 import VerificationEmailPage from './components/VerificationEmailPage';
+import TodayQuizPage from './components/TodayQuizPage';
 import Header from './components/common/Header';
 import Footer from './components/common/Footer';
 import SubscriptionModal from './components/common/SubscriptionModal';
@@ -33,6 +34,7 @@ function App() {
             <Header />
             <Routes>
               <Route path="/" element={<LandingPage onSubscribeClick={() => setIsSubscriptionModalOpen(true)} />} />
+              <Route path="/todayQuiz" element={<TodayQuizPage />} />
               <Route path="/quiz" element={<QuizSection />} />
               <Route path="/mailform" element={<TodayEmailFormSection />} />
               <Route path="/verification-email" element={<VerificationEmailPage />} />

@@ -30,7 +30,7 @@ const TodayEmailFormSection: React.FC = () => {
         <div className="max-w-4xl mx-auto">
           <EmailTemplate
             toEmail="your-email@example.com"
-            quizLink="https://cs25.com/quiz/today"
+            quizLink="/todayQuiz"
           />
         </div>
 

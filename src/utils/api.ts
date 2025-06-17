@@ -107,8 +107,13 @@ export const quizAPI = {
   },
 
   // 오늘의 퀴즈 조회
-  getTodayQuiz: async () => {
-    return apiRequest('/quiz/today', {
+  getTodayQuiz: async (subscriptionId?: string, quizId?: string) => {
+    const params = new URLSearchParams();
+    if (subscriptionId) params.append('subscriptionId', subscriptionId);
+    if (quizId) params.append('quizId', quizId);
+    
+    const endpoint = params.toString() ? `/todayQuiz?${params.toString()}` : '/todayQuiz';
+    return apiRequest(endpoint, {
       method: 'GET'
     });
   },
@@ -118,6 +123,14 @@ export const quizAPI = {
     return apiRequest('/quiz/submit', {
       method: 'POST',
       body: JSON.stringify({ quizId, answer }),
+    });
+  },
+
+  // TodayQuiz 답안 제출
+  submitTodayQuizAnswer: async (quizId: string, answer: number, subscriptionId: string) => {
+    return apiRequest(`/quizzes/${quizId}`, {
+      method: 'POST',
+      body: JSON.stringify({ answer, subscriptionId }),
     });
   },
 
