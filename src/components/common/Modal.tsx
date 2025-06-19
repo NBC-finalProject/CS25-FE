@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 
 interface ModalProps {
   isOpen: boolean;
@@ -10,11 +10,20 @@ interface ModalProps {
 }
 
 const Modal: React.FC<ModalProps> = ({ isOpen, onClose, children, title, size = 'md', closable = true }) => {
+  const [isVisible, setIsVisible] = useState(false);
+  const [shouldRender, setShouldRender] = useState(false);
+
   useEffect(() => {
     if (isOpen) {
+      setShouldRender(true);
       document.body.style.overflow = 'hidden';
+      // 약간의 지연 후 애니메이션 시작
+      setTimeout(() => setIsVisible(true), 10);
     } else {
+      setIsVisible(false);
       document.body.style.overflow = 'unset';
+      // 애니메이션 완료 후 언마운트
+      setTimeout(() => setShouldRender(false), 200);
     }
 
     return () => {
@@ -22,7 +31,7 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, children, title, size = 
     };
   }, [isOpen]);
 
-  if (!isOpen) return null;
+  if (!shouldRender) return null;
 
   const getSizeClasses = () => {
     switch (size) {
@@ -38,12 +47,18 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, children, title, size = 
     <div className="fixed inset-0 z-50 flex items-center justify-center font-pretendard">
       {/* Backdrop */}
       <div 
-        className="fixed inset-0 bg-black bg-opacity-50 transition-opacity"
+        className={`fixed inset-0 bg-black transition-all duration-200 ease-out ${
+          isVisible ? 'bg-opacity-50' : 'bg-opacity-0'
+        }`}
         onClick={closable ? onClose : undefined}
       />
       
       {/* Modal */}
-      <div className={`relative bg-white rounded-2xl shadow-2xl ${getSizeClasses()} w-full mx-4`}>
+      <div className={`relative bg-white rounded-2xl shadow-2xl ${getSizeClasses()} w-full mx-4 transition-all duration-200 ease-out transform ${
+        isVisible 
+          ? 'opacity-100 scale-100 translate-y-0' 
+          : 'opacity-0 scale-95 translate-y-4'
+      }`}>
         {/* Header */}
         {(title || closable) && (
           <div className="flex items-center justify-between p-6">
