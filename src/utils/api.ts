@@ -78,32 +78,29 @@ export const subscriptionAPI = {
       method: 'POST',
       body: JSON.stringify({
         ...data,
-        isActive: true
+        active: true
       }),
     });
   },
 
-  // 구독 설정 조회
-  getSubscriptionSettings: async (email: string, token: string) => {
-    return apiRequest(`/subscription/settings?email=${email}&token=${token}`, {
+  // subscriptionId로 구독정보 조회
+  getSubscriptionById: async (subscriptionId: string) => {
+    return apiRequest(`/subscriptions/${subscriptionId}`, {
       method: 'GET'
     });
   },
 
-  // 구독 설정 업데이트
-  updateSubscriptionSettings: async (
-    email: string,
-    token: string,
-    settings: {
-      categories: string[];
-      difficulty: string;
-      frequency: string;
-      timePreference: string;
-    }
-  ) => {
-    return apiRequest(`/subscription/settings`, {
-      method: 'PUT',
-      body: JSON.stringify({ email, token, ...settings }),
+  // subscriptionId로 구독정보 수정
+  updateSubscription: async (subscriptionId: string, data: {
+    category: string;
+    email: string;
+    days: string[];
+    period: number;
+    active: boolean;
+  }) => {
+    return apiRequest(`/subscriptions/${subscriptionId}`, {
+      method: 'PATCH',
+      body: JSON.stringify(data),
     });
   },
 };

@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
-import { quizAPI } from '../utils/api';
-import Container from './common/Container';
-import Section from './common/Section';
-import { useModal } from '../hooks/useModal';
+import { quizAPI } from '../../utils/api';
+import Container from '../common/Container';
+import Section from '../common/Section';
+import { useModal } from '../../hooks/useModal';
 
 interface QuizData {
   question: string;
@@ -39,7 +39,7 @@ const fakeAnswer: AnswerResult = {
   commentary: "let은 ES6에서 도입된 블록 스코프 변수 선언 키워드입니다."
 };
 
-const TodayQuizPage: React.FC = () => {
+const TodayQuizSection: React.FC = () => {
   const [searchParams] = useSearchParams();
   const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null);
   const [isSubmitted, setIsSubmitted] = useState(false);
@@ -335,4 +335,4 @@ const TodayQuizPage: React.FC = () => {
   );
 };
 
-export default TodayQuizPage;
+export default TodayQuizSection;

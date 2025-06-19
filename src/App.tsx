@@ -5,7 +5,8 @@ import LandingPage from './components/LandingPage';
 import QuizSection from './components/sections/QuizSection';
 import TodayEmailFormSection from './components/sections/TodayEmailFormSection';
 import VerificationEmailPage from './components/VerificationEmailPage';
-import TodayQuizPage from './components/TodayQuizPage';
+import TodayQuizPage from './components/sections/TodayQuizSection';
+import SubscriptionEditSection from './components/sections/SubscriptionEditSection';
 import Header from './components/common/Header';
 import Footer from './components/common/Footer';
 import SubscriptionModal from './components/common/SubscriptionModal';
@@ -38,6 +39,7 @@ function App() {
               <Route path="/quiz" element={<QuizSection />} />
               <Route path="/mailform" element={<TodayEmailFormSection />} />
               <Route path="/verification-email" element={<VerificationEmailPage />} />
+              <Route path="/subscriptions/:subscriptionId" element={<SubscriptionEditSection />} />
             </Routes>
             <Footer />
             <SubscriptionModal 

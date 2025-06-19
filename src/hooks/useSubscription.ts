@@ -5,6 +5,7 @@ import { subscriptionAPI } from '../utils/api';
 export const subscriptionKeys = {
   all: ['subscription'] as const,
   settings: (email: string, token: string) => [...subscriptionKeys.all, 'settings', email, token] as const,
+  byId: (id: string) => [...subscriptionKeys.all, 'byId', id] as const,
 };
 
 // 이메일 인증 요청
@@ -47,40 +48,41 @@ export const useCreateSubscription = () => {
   });
 };
 
-// 구독 설정 조회
-export const useSubscriptionSettings = (email: string, token: string, enabled: boolean = true) => {
+// 구독 정보 조회 (ID로)
+export const useSubscriptionById = (subscriptionId: string) => {
   return useQuery({
-    queryKey: subscriptionKeys.settings(email, token),
-    queryFn: () => subscriptionAPI.getSubscriptionSettings(email, token),
-    enabled: enabled && !!email && !!token,
-    staleTime: 1000 * 60 * 5, // 5분간 fresh
+    queryKey: subscriptionKeys.byId(subscriptionId),
+    queryFn: async () => {
+      const response = await subscriptionAPI.getSubscriptionById(subscriptionId);
+      const subscriptionResponse = response as { data: any };
+      return subscriptionResponse.data;
+    },
+    enabled: !!subscriptionId,
   });
 };
 
-// 구독 설정 업데이트
-export const useUpdateSubscriptionSettings = () => {
+// 구독 정보 수정
+export const useUpdateSubscription = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({
-      email,
-      token,
-      settings,
-    }: {
-      email: string;
-      token: string;
-      settings: {
-        categories: string[];
-        difficulty: string;
-        frequency: string;
-        timePreference: string;
-      };
-    }) => subscriptionAPI.updateSubscriptionSettings(email, token, settings),
+    mutationFn: ({ 
+      subscriptionId, 
+      data 
+    }: { 
+      subscriptionId: string; 
+      data: { 
+        category: string; 
+        email: string;
+        days: string[]; 
+        period: number; 
+        active: boolean; 
+      } 
+    }) => subscriptionAPI.updateSubscription(subscriptionId, data),
     onSuccess: (_, variables) => {
-      // 특정 사용자의 설정 캐시 무효화
-      queryClient.invalidateQueries({ 
-        queryKey: subscriptionKeys.settings(variables.email, variables.token) 
-      });
+      // 수정된 구독 정보와 전체 구독 목록 캐시 무효화
+      queryClient.invalidateQueries({ queryKey: subscriptionKeys.byId(variables.subscriptionId) });
+      queryClient.invalidateQueries({ queryKey: subscriptionKeys.all });
     },
   });
 };
