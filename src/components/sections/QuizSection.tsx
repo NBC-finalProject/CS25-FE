@@ -19,10 +19,6 @@ const QuizSection: React.FC = () => {
   const [showResult, setShowResult] = useState(false);
   const [userAnswer, setUserAnswer] = useState<number | null>(null);
 
-  // React Query 훅 사용
-  const { data: quiz, isLoading, error } = useTodayQuiz();
-  const submitAnswerMutation = useSubmitQuizAnswer();
-
   // 샘플 퀴즈 데이터 (API 실패시 fallback)
   const sampleQuiz: QuizData = {
     id: 'sample',
@@ -39,20 +35,6 @@ const QuizSection: React.FC = () => {
 
   const handleQuizSubmit = async (selectedAnswer: number) => {
     setUserAnswer(selectedAnswer);
-    
-    // 유효한 퀴즈 ID가 있는 경우에만 답안 제출
-    const currentQuiz = (quiz as QuizData) || sampleQuiz;
-    if (currentQuiz?.id && currentQuiz.id !== 'sample') {
-      submitAnswerMutation.mutate(
-        { quizId: currentQuiz.id, answer: selectedAnswer },
-        {
-          onError: (error) => {
-            console.error('답안 제출 실패:', error);
-          },
-        }
-      );
-    }
-    
     setShowResult(true);
   };
 
@@ -61,24 +43,10 @@ const QuizSection: React.FC = () => {
     setUserAnswer(null);
   };
 
-  // 로딩 상태
-  if (isLoading) {
-    return (
-      <Section className="py-20 bg-gray-50">
-        <Container>
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-brand-500 mx-auto"></div>
-            <p className="mt-4 text-gray-600">퀴즈를 불러오는 중...</p>
-          </div>
-        </Container>
-      </Section>
-    );
-  }
-
   // 에러 상태 처리 - 샘플 퀴즈로 fallback
-  const currentQuiz = (quiz as QuizData) || sampleQuiz;
+  const currentQuiz = sampleQuiz;
 
-  if (error && !currentQuiz) {
+  if (!currentQuiz) {
     return (
       <Section className="py-20 bg-gray-50">
         <Container>
@@ -138,7 +106,7 @@ const QuizSection: React.FC = () => {
           </div>
           
           <h2 className="text-3xl md:text-4xl font-bold mb-6 text-gray-900">
-            AI가 준비한 <span className="bg-gradient-to-r from-brand-600 to-navy-600 bg-clip-text text-transparent">오늘의 문제</span>
+            AI가 준비한 <span className="bg-gradient-to-r from-brand-600 to-navy-600 bg-clip-text text-transparent">오늘의 연습문제</span>
           </h2>
           
           <p className="text-lg text-gray-600 leading-relaxed">
