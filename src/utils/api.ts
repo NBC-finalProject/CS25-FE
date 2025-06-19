@@ -21,7 +21,18 @@ async function apiRequest<T>(
     const response = await fetch(url, config);
     
     if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
+      // 에러 응답 본문 파싱
+      let errorData;
+      try {
+        errorData = await response.json();
+      } catch {
+        errorData = { message: `HTTP error! status: ${response.status}` };
+      }
+      
+      const error = new Error(errorData.message || `HTTP error! status: ${response.status}`);
+      (error as any).status = response.status;
+      (error as any).data = errorData;
+      throw error;
     }
     
     return await response.json();
@@ -127,10 +138,13 @@ export const quizAPI = {
   },
 
   // TodayQuiz 답안 제출
-  submitTodayQuizAnswer: async (quizId: string, answer: number, subscriptionId: string) => {
+  submitTodayQuizAnswer: async (quizId: string, answerNumber: number, subscriptionId: string) => {
     return apiRequest(`/quizzes/${quizId}`, {
       method: 'POST',
-      body: JSON.stringify({ answer, subscriptionId }),
+      body: JSON.stringify({ 
+        answer: answerNumber.toString(),
+        subscriptionId: parseInt(subscriptionId)
+      }),
     });
   },
 
