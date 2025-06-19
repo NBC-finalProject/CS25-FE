@@ -1,0 +1,21 @@
+{
+  "short_name": "CS25",
+  "name": "CS25 - 해설과 함께하는 CS 학습",
+  "icons": [
+    {
+      "src": "favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    },
+    {
+      "src": "cs25_logo.png",
+      "type": "image/png",
+      "sizes": "192x192"
+    }
+  ],
+  "start_url": ".",
+  "display": "standalone",
+  "theme_color": "#4F46E5",
+  "background_color": "#ffffff",
+  "description": "CS 지식을 해설과 함께 전달하는 메일 서비스"
+}
