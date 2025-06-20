@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import Modal from './Modal';
 import { useQuizCategories } from '../../hooks/useQuiz';
 import { useRequestEmailVerification, useVerifyCode, useCreateSubscription, useCheckEmail } from '../../hooks';
+import { getCategoryLabel } from '../../utils/categoryUtils';
 
 interface SubscriptionModalProps {
   isOpen: boolean;
@@ -20,6 +21,7 @@ interface FormErrors {
   weekdays?: string;
   period?: string;
   verification?: string;
+  subscription?: string;
 }
 
 type Step = 'form' | 'verification' | 'success';
@@ -44,18 +46,6 @@ const SubscriptionModal: React.FC<SubscriptionModalProps> = ({ isOpen, onClose }
   const verifyCodeMutation = useVerifyCode();
   const createSubscriptionMutation = useCreateSubscription();
   
-  const getCategoryLabel = (category: string) => {
-    switch (category.toLowerCase()) {
-      case 'frontend':
-        return '프론트엔드';
-      case 'backend':
-        return '백엔드';
-      case 'certification':
-        return '자격증';
-      default:
-        return category;
-    }
-  };
   
   // API 응답이 {data: []} 형태인지 확인하고 처리
   const categoryList = (categoriesData && typeof categoriesData === 'object' && 'data' in categoriesData) 
@@ -209,13 +199,29 @@ const SubscriptionModal: React.FC<SubscriptionModalProps> = ({ isOpen, onClose }
       { email: formData.email, code: verificationCode },
       {
         onSuccess: () => {
+          // period 문자열을 월 단위 숫자로 변환
+          const getMonthsFromPeriod = (period: string): number => {
+            switch (period) {
+              case 'ONE_MONTH':
+                return 1;
+              case 'THREE_MONTHS':
+                return 3;
+              case 'SIX_MONTHS':
+                return 6;
+              case 'ONE_YEAR':
+                return 12;
+              default:
+                return 0;
+            }
+          };
+
           // 인증 성공 후 구독 생성
           createSubscriptionMutation.mutate(
             {
               email: formData.email,
               category: formData.categories[0], // 첫 번째 선택된 카테고리만 전송
               days: formData.weekdays,
-              period: formData.period,
+              period: getMonthsFromPeriod(formData.period), // 숫자로 변환해서 전송
             },
             {
               onSuccess: () => {
@@ -223,7 +229,8 @@ const SubscriptionModal: React.FC<SubscriptionModalProps> = ({ isOpen, onClose }
               },
               onError: (error) => {
                 console.error('구독 생성 실패:', error);
-                setFormErrors({ verification: '구독 생성에 실패했습니다. 다시 시도해주세요.' });
+                const errorMessage = error?.message || '구독 생성에 실패했습니다. 다시 시도해주세요.';
+                setFormErrors({ subscription: errorMessage });
               },
             }
           );
@@ -505,6 +512,18 @@ const SubscriptionModal: React.FC<SubscriptionModalProps> = ({ isOpen, onClose }
         >
           {verifyCodeMutation.isPending || createSubscriptionMutation.isPending ? '처리 중...' : '인증 완료'}
         </button>
+        
+        {/* 구독 생성 에러 메시지 */}
+        {formErrors.subscription && (
+          <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-lg">
+            <p className="text-red-700 text-sm flex items-center">
+              <svg className="w-4 h-4 mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+              </svg>
+              {formErrors.subscription}
+            </p>
+          </div>
+        )}
       </form>
 
       <button

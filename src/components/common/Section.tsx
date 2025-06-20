@@ -23,7 +23,7 @@ const Section: React.FC<SectionProps> = ({
   };
 
   return (
-    <section className={`py-20 font-pretendard ${getBgColor()} ${className}`}>
+    <section className={`py-12 sm:py-16 lg:py-20 font-pretendard ${getBgColor()} ${className}`}>
       {children}
     </section>
   );

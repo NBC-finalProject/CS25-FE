@@ -43,36 +43,36 @@ const FeaturesSection: React.FC = () => {
   ];
 
   return (
-    <Section className="py-20">
+    <Section className="py-12 sm:py-16 lg:py-20">
       <Container>
-        <div className="text-center max-w-3xl mx-auto mb-16">
-          <h2 className="text-4xl md:text-5xl font-bold mb-6 text-gray-900">
+        <div className="text-center max-w-3xl mx-auto mb-12 sm:mb-16 px-4 sm:px-0">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-4 sm:mb-6 text-gray-900">
             AI 기반 CS 학습의 혁신
           </h2>
-          <p className="text-xl text-gray-600 leading-relaxed">
+          <p className="text-base sm:text-lg md:text-xl text-gray-600 leading-relaxed">
             AI가 생성하고 해설하는 개인화된 CS 지식 학습 경험
           </p>
         </div>
         
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8 px-4 sm:px-0">
           {features.map((feature, index) => (
             <div 
               key={index}
-              className="bg-white rounded-2xl p-8 shadow-sm border border-gray-100 hover:shadow-lg transition-all duration-300 hover:-translate-y-1 group"
+              className="bg-white rounded-xl sm:rounded-2xl p-6 sm:p-8 shadow-sm border border-gray-100 hover:shadow-lg transition-all duration-300 hover:-translate-y-1 group"
             >
-              <div className="mb-6">
+              <div className="mb-4 sm:mb-6">
                 {feature.icon}
               </div>
               
-              <h3 className="text-xl font-bold text-gray-900 mb-4 group-hover:text-navy-700 transition-colors">
+              <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-3 sm:mb-4 group-hover:text-navy-700 transition-colors">
                 {feature.title}
               </h3>
               
-              <p className="text-gray-600 mb-3 leading-relaxed">
+              <p className="text-sm sm:text-base text-gray-600 mb-2 sm:mb-3 leading-relaxed">
                 {feature.description}
               </p>
               
-              <p className="text-sm text-gray-500">
+              <p className="text-xs sm:text-sm text-gray-500">
                 {feature.details}
               </p>
             </div>

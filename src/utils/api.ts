@@ -73,7 +73,7 @@ export const subscriptionAPI = {
     email: string;
     category: string;
     days: string[];
-    period: string;
+    period: number; // 이미 숫자로 변환된 값을 받음
   }) => {
     return apiRequest('/subscriptions', {
       method: 'POST',
@@ -136,11 +136,11 @@ export const quizAPI = {
   },
 
   // TodayQuiz 답안 제출
-  submitTodayQuizAnswer: async (quizId: string, answerNumber: number, subscriptionId: string) => {
+  submitTodayQuizAnswer: async (quizId: string, answer: number | string, subscriptionId: string) => {
     return apiRequest(`/quizzes/${quizId}`, {
       method: 'POST',
       body: JSON.stringify({ 
-        answer: answerNumber.toString(),
+        answer: answer.toString(),
         subscriptionId: parseInt(subscriptionId)
       }),
     });
@@ -149,6 +149,20 @@ export const quizAPI = {
   // 사용자별 퀴즈 히스토리
   getUserQuizHistory: async (email: string, token: string) => {
     return apiRequest(`/quiz/history?email=${email}&token=${token}`, {
+      method: 'GET'
+    });
+  },
+
+  // 퀴즈 선택 비율 조회
+  getQuizSelectionRates: async (quizId: string) => {
+    return apiRequest(`/quizzes/${quizId}/select-rate`, {
+      method: 'GET'
+    });
+  },
+
+  // AI 피드백 조회 (주관식)
+  getAiFeedback: async (answerId: string) => {
+    return apiRequest(`/quizzes/${answerId}/feedback`, {
       method: 'GET'
     });
   },

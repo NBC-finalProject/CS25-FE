@@ -39,7 +39,7 @@ export const useCreateSubscription = () => {
       email: string;
       category: string;
       days: string[];
-      period: string;
+      period: number; // string에서 number로 변경
     }) => subscriptionAPI.createSubscription(data),
     onSuccess: () => {
       // 구독 생성 후 관련 캐시 무효화
