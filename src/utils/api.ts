@@ -14,6 +14,7 @@ async function apiRequest<T>(
       'Content-Type': 'application/json',
       ...options.headers,
     },
+    credentials: 'include', //요청보낼 때 여기도메인에있는 쿠키도 같이 보내겠다
     ...options,
   };
 
