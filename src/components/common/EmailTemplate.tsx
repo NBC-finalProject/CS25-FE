@@ -58,6 +58,7 @@ const EmailTemplate: React.FC<EmailTemplateProps> = ({ toEmail, quizLink }) => {
           {/* Subscription Settings */}
           <div className="text-center mb-8">
             <button
+              disabled
               className="inline-flex items-center space-x-2 bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-lg font-medium text-sm border border-gray-200 transition-all duration-200 hover:shadow-sm"
             >
               <span className="text-base">⚙️</span>
