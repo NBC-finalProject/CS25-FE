@@ -16,18 +16,25 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, children, title, size = 
   useEffect(() => {
     if (isOpen) {
       setShouldRender(true);
+      
+      // 스크롤바 너비를 계산하여 패딩으로 보상
+      const scrollBarWidth = window.innerWidth - document.documentElement.clientWidth;
       document.body.style.overflow = 'hidden';
+      document.body.style.paddingRight = `${scrollBarWidth}px`;
+      
       // 약간의 지연 후 애니메이션 시작
       setTimeout(() => setIsVisible(true), 10);
     } else {
       setIsVisible(false);
       document.body.style.overflow = 'unset';
+      document.body.style.paddingRight = '';
       // 애니메이션 완료 후 언마운트
       setTimeout(() => setShouldRender(false), 200);
     }
 
     return () => {
       document.body.style.overflow = 'unset';
+      document.body.style.paddingRight = '';
     };
   }, [isOpen]);
 
