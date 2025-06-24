@@ -58,7 +58,7 @@ const fakeTodayQuiz: QuizData = {
   commentary: "let은 ES6에서 도입된 블록 스코프 변수 선언 키워드입니다.",
   category: {
     main: "FRONTEND",
-    sub: "Programming"
+    sub: "SoftwareDesign"
   },
   quizType: "MULTIPLE_CHOICE",
   quizLevel: "NORMAL"
@@ -147,7 +147,6 @@ const TodayQuizSection: React.FC = () => {
     },
     enabled: !!(subscriptionId && quizId),
   });
-  
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -233,7 +232,6 @@ const TodayQuizSection: React.FC = () => {
             } else if ('answerId' in submitResponse) {
               answerId = (submitResponse as any).answerId.toString();
             } else {
-              // 응답 전체가 answerId일 수 있음
               answerId = (submitResponse as any).toString();
             }
           } else {
@@ -269,9 +267,8 @@ const TodayQuizSection: React.FC = () => {
           } catch (feedbackError) {
             console.error('AI 피드백 요청 실패:', feedbackError);
             
-            // 피드백 실패 시 기본 결과 표시
             const errorResult: AnswerResult = {
-              isCorrect: false, // 기본값
+              isCorrect: false,
               answer: displayQuiz.answer || '',
               commentary: displayQuiz.commentary,
               aiFeedback: 'AI 피드백을 가져오는데 실패했습니다.'
@@ -411,26 +408,26 @@ const TodayQuizSection: React.FC = () => {
 
             {/* Question Box */}
             <div className="bg-brand-50 border border-brand-200 rounded-xl p-4 sm:p-6 text-base sm:text-lg font-medium text-gray-800 mb-8 max-w-4xl mx-auto text-left">
-              <div className="flex items-start justify-between mb-4">
-                <strong className="flex-1 leading-relaxed">Q. {displayQuiz?.question}</strong>
-                {/* 카테고리 & 난이도 표시 */}
-                <div className="ml-2 sm:ml-4 flex flex-col sm:flex-row gap-1 sm:gap-2 flex-shrink-0">
-                  {displayQuiz?.category?.main && (
-                    <div className="bg-blue-100 text-blue-800 px-2 sm:px-3 py-1 rounded-full text-xs sm:text-sm font-medium">
-                      {getMainCategoryLabel(displayQuiz.category.main)}
-                    </div>
-                  )}
-                  {displayQuiz?.category?.sub && (
-                    <div className="bg-purple-100 text-purple-800 px-2 sm:px-3 py-1 rounded-full text-xs sm:text-sm font-medium">
-                      {getSubCategoryLabel(displayQuiz.category.sub)}
-                    </div>
-                  )}
-                  {displayQuiz?.quizLevel && (
-                    <div className={`px-2 sm:px-3 py-1 rounded-full text-xs sm:text-sm font-medium ${getDifficultyDisplay(displayQuiz.quizLevel).color}`}>
-                      {getDifficultyDisplay(displayQuiz.quizLevel).label}
-                    </div>
-                  )}
-                </div>
+              <div className="mb-4">
+                <strong className="block leading-relaxed">Q. {displayQuiz?.question}</strong>
+              </div>
+              {/* 카테고리 & 난이도 표시 - 질문 아래 */}
+              <div className="flex flex-wrap gap-1 sm:gap-2">
+                {displayQuiz?.category?.main && (
+                  <div className="bg-blue-100 text-blue-800 px-2 sm:px-3 py-1 rounded-full text-xs sm:text-sm font-medium">
+                    {getMainCategoryLabel(displayQuiz.category.main)}
+                  </div>
+                )}
+                {displayQuiz?.category?.sub && (
+                  <div className="bg-purple-100 text-purple-800 px-2 sm:px-3 py-1 rounded-full text-xs sm:text-sm font-medium">
+                    {getSubCategoryLabel(displayQuiz.category.sub)}
+                  </div>
+                )}
+                {displayQuiz?.quizLevel && (
+                  <div className={`px-2 sm:px-3 py-1 rounded-full text-xs sm:text-sm font-medium ${getDifficultyDisplay(displayQuiz.quizLevel).color}`}>
+                    {getDifficultyDisplay(displayQuiz.quizLevel).label}
+                  </div>
+                )}
               </div>
             </div>
 
