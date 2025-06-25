@@ -1,42 +1,25 @@
 // API 유틸리티 함수들
+import apiClient from './axiosConfig';
+import { AxiosResponse } from 'axios';
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080';
-
-// 기본 fetch 래퍼
+// Axios wrapper for consistency with existing code
 async function apiRequest<T>(
   endpoint: string,
-  options: RequestInit = {}
+  options: {
+    method?: string;
+    body?: string;
+    headers?: Record<string, string>;
+  } = {}
 ): Promise<T> {
-  const url = `${API_BASE_URL}${endpoint}`;
-  
-  const config: RequestInit = {
-    headers: {
-      'Content-Type': 'application/json',
-      ...options.headers,
-    },
-    credentials: 'include', //요청보낼 때 여기도메인에있는 쿠키도 같이 보내겠다
-    ...options,
-  };
-
   try {
-    const response = await fetch(url, config);
+    const response: AxiosResponse<T> = await apiClient({
+      url: endpoint,
+      method: (options.method as any) || 'GET',
+      data: options.body ? JSON.parse(options.body) : undefined,
+      headers: options.headers,
+    });
     
-    if (!response.ok) {
-      // 에러 응답 본문 파싱
-      let errorData;
-      try {
-        errorData = await response.json();
-      } catch {
-        errorData = { message: `HTTP error! status: ${response.status}` };
-      }
-      
-      const error = new Error(errorData.message || `HTTP error! status: ${response.status}`);
-      (error as any).status = response.status;
-      (error as any).data = errorData;
-      throw error;
-    }
-    
-    return await response.json();
+    return response.data;
   } catch (error) {
     console.error('API request failed:', error);
     throw error;
@@ -168,6 +151,38 @@ export const quizAPI = {
   },
 };
 
+// 사용자 관련 API
+export const userAPI = {
+  // 사용자 프로필 조회
+  getProfile: async () => {
+    return apiRequest('/profile', {
+      method: 'GET'
+    });
+  },
+
+  // 사용자 구독 정보 조회
+  getProfileSubscription: async () => {
+    return apiRequest('/profile/subscription', {
+      method: 'GET'
+    });
+  },
+
+  // 사용자 틀린 문제 조회
+  getWrongQuiz: async () => {
+    return apiRequest('/profile/wrong-quiz', {
+      method: 'GET'
+    });
+  },
+
+  // 사용자 카테고리별 정답률 조회
+  getCorrectRate: async () => {
+    return apiRequest('/profile/correct-rate', {
+      method: 'GET'
+    });
+  },
+
+};
+
 // 인증 관련 API
 export const authAPI = {
   // 로그인
@@ -183,6 +198,36 @@ export const authAPI = {
     return apiRequest('/auth/register', {
       method: 'POST',
       body: JSON.stringify({ email, password }),
+    });
+  },
+
+  // 토큰 갱신 (기존 - 호환성용)
+  refreshToken: async (refreshToken: string) => {
+    return apiRequest('/auth/refresh', {
+      method: 'POST',
+      body: JSON.stringify({ refreshToken }),
+    });
+  },
+
+  // 토큰 재발급 (HttpOnly 쿠키 기반)
+  reissueToken: async (reissueRequestDto: any) => {
+    return apiRequest('/auth/reissue', {
+      method: 'POST',
+      body: JSON.stringify(reissueRequestDto),
+    });
+  },
+
+  // 로그아웃
+  logout: async () => {
+    return apiRequest('/auth/logout', {
+      method: 'POST',
+    });
+  },
+
+  // 인증 상태 확인 (HttpOnly 쿠키 기반)
+  checkAuthStatus: async () => {
+    return apiRequest('/auth/status', {
+      method: 'GET',
     });
   },
 

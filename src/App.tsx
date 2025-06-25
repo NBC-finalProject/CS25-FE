@@ -13,6 +13,7 @@ import SubscriptionModal from './components/common/SubscriptionModal';
 import { ModalProvider } from './contexts/ModalContext';
 import ModalManager from './components/common/ModalManager';
 import './App.css';
+import ProfileSection from './components/sections/ProfileSection';
 
 // React Query client 생성
 const queryClient = new QueryClient({
@@ -40,6 +41,7 @@ function App() {
               <Route path="/mailform" element={<TodayEmailFormSection />} />
               <Route path="/verification-email" element={<VerificationEmailPage />} />
               <Route path="/subscriptions/:subscriptionId" element={<SubscriptionEditSection />} />
+              <Route path="/profile" element={<ProfileSection />} />
             </Routes>
             <Footer />
             <SubscriptionModal 

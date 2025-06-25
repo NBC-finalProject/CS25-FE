@@ -2,3 +2,4 @@
 export * from './useQuiz';
 export * from './useSubscription';
 export * from './useAuth';
+export * from './useUser';
