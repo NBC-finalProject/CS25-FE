@@ -34,12 +34,11 @@ const Header: React.FC = () => {
             className="flex items-center cursor-pointer"
             onClick={() => navigate('/')}
           >
-            <span className="text-2xl font-bold text-slate-800">
-              CS
-            </span>
-            <span className="text-2xl font-bold text-blue-500">
-              25
-            </span>
+            <img 
+              src="/cs25.png" 
+              alt="CS25" 
+              className="h-8 w-auto"
+            />
           </div>
         </div>
         
