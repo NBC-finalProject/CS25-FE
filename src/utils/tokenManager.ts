@@ -65,7 +65,7 @@ class CookieTokenManager implements TokenManager {
       const response = await authAPI.checkAuthStatus();
       
       // 응답 구조: {"httpCode":200,"data":boolean}
-      const isAuthenticated = response?.data === true;
+      const isAuthenticated = (response as any)?.data === true;
       
       return isAuthenticated;
     } catch (error) {

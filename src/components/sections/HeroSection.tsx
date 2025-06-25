@@ -34,10 +34,7 @@ const HeroSection: React.FC<HeroSectionProps> = ({ onSubscribeClick }) => {
               className="bg-gradient-to-r from-brand-500 to-brand-600 text-white px-6 sm:px-8 py-3 sm:py-4 rounded-full font-semibold text-base sm:text-lg transition-all duration-300 hover:from-brand-600 hover:to-brand-700 hover:scale-105 hover:shadow-xl group w-full sm:w-auto max-w-xs"
             >
               <span className="flex items-center justify-center">
-                무료로 구독하기
-                <svg className="w-4 h-4 sm:w-5 sm:h-5 ml-2 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
-                </svg>
+                무료 구독하기
               </span>
             </button>
             

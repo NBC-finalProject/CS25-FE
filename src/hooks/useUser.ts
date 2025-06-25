@@ -35,29 +35,29 @@ export const useUserProfileSubscription = (enabled: boolean = true) => {
   });
 };
 
-// 사용자 퀴즈 히스토리 조회
-export const useUserQuizHistory = (page: number = 0, size: number = 10, enabled: boolean = true) => {
-  return useQuery({
-    queryKey: userKeys.quizHistory(page, size),
-    queryFn: async () => {
-      const response = await userAPI.getQuizHistory(page, size);
-      return (response as any).data;
-    },
-    enabled,
-  });
-};
+// 사용자 퀴즈 히스토리 조회 (미구현으로 주석 처리)
+// export const useUserQuizHistory = (page: number = 0, size: number = 10, enabled: boolean = true) => {
+//   return useQuery({
+//     queryKey: userKeys.quizHistory(page, size),
+//     queryFn: async () => {
+//       const response = await userAPI.getQuizHistory(page, size);
+//       return (response as any).data;
+//     },
+//     enabled,
+//   });
+// };
 
-// 사용자 랭킹 조회
-export const useUserRanking = (page: number = 0, size: number = 10, enabled: boolean = true) => {
-  return useQuery({
-    queryKey: userKeys.ranking(page, size),
-    queryFn: async () => {
-      const response = await userAPI.getRanking(page, size);
-      return (response as any).data;
-    },
-    enabled,
-  });
-};
+// 사용자 랭킹 조회 (미구현으로 주석 처리)
+// export const useUserRanking = (page: number = 0, size: number = 10, enabled: boolean = true) => {
+//   return useQuery({
+//     queryKey: userKeys.ranking(page, size),
+//     queryFn: async () => {
+//       const response = await userAPI.getRanking(page, size);
+//       return (response as any).data;
+//     },
+//     enabled,
+//   });
+// };
 
 // 사용자 틀린 문제 조회
 export const useUserWrongQuiz = (enabled: boolean = true) => {

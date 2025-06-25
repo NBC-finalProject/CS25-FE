@@ -9,13 +9,16 @@ interface EmailTemplateProps {
 const EmailTemplate: React.FC<EmailTemplateProps> = ({ toEmail, quizLink }) => {
   const navigate = useNavigate();
   return (
-    <div className="font-pretendard p-4 sm:p-6 lg:p-10">
+    <div className="font-pretendard py-4 sm:p-6 lg:p-10">
       <div className="max-w-2xl mx-auto bg-white rounded-xl sm:rounded-2xl shadow-lg overflow-hidden">
         {/* Header with Logo */}
         <div className="bg-gradient-to-r from-brand-500 to-brand-600 p-6 sm:p-8 text-center">
           <div className="flex items-center justify-center space-x-2 mb-3 sm:mb-4">
-            <span className="text-2xl sm:text-3xl font-bold text-white">CS</span>
-            <span className="text-2xl sm:text-3xl font-bold text-blue-100">25</span>
+            <img 
+              src="/cs25.png" 
+              alt="CS25" 
+              className="h-6 sm:h-8 w-auto"
+            />
           </div>
           <h1 className="text-xl sm:text-2xl font-bold text-white">오늘의 CS 문제</h1>
           <p className="text-sm sm:text-base text-brand-100 mt-2">AI가 준비한 맞춤형 문제를 확인하세요</p>
@@ -32,7 +35,7 @@ const EmailTemplate: React.FC<EmailTemplateProps> = ({ toEmail, quizLink }) => {
             <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-3 sm:mb-4">오늘의 문제를 풀어보세요!</h2>
             <p className="text-sm sm:text-base text-gray-600 leading-relaxed mb-4 sm:mb-6 px-2 sm:px-0">
               안녕하세요! CS25에서 오늘의 맞춤형 CS 문제를 보내드립니다.<br className="hidden sm:block" />
-              <span className="block sm:inline">AI가 생성한 문제와 상세한 해설로 CS 지식을 향상시켜보세요.</span>
+              <span className="block sm:inline">데일리 문제와 상세한 AI 해설로 CS 지식을 향상시켜보세요.</span>
             </p>
           </div>
 

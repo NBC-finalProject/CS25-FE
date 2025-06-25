@@ -18,8 +18,8 @@ const FeaturesSection: React.FC = () => {
     },
     {
       icon: (
-        <div className="w-12 h-12 bg-navy-100 rounded-xl flex items-center justify-center">
-          <svg className="w-6 h-6 text-navy-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <div className="w-12 h-12 bg-brand-100 rounded-xl flex items-center justify-center">
+          <svg className="w-6 h-6 text-brand-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
           </svg>
         </div>
@@ -47,10 +47,18 @@ const FeaturesSection: React.FC = () => {
       <Container>
         <div className="text-center max-w-3xl mx-auto mb-12 sm:mb-16 px-4 sm:px-0">
           <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-4 sm:mb-6 text-gray-900">
-            AI 기반 CS 학습의 혁신
+            AI 기반 CS 학습의{' '}
+            <span className="bg-gradient-to-r from-brand-600 via-purple-600 to-blue-600 bg-clip-text text-transparent animate-pulse">
+              혁신
+            </span>
           </h2>
           <p className="text-base sm:text-lg md:text-xl text-gray-600 leading-relaxed">
-            AI가 생성하고 해설하는 개인화된 CS 지식 학습 경험
+            AI가 생성하고 해설하는{' '}
+            <span className="font-semibold text-brand-600 hover:scale-105 transition-transform inline-block cursor-default">
+              개인화된
+            </span>{' '}
+            CS 지식 학습 경험{' '}
+            <span className="inline-block animate-bounce delay-100">✨</span>
           </p>
         </div>
         
@@ -59,21 +67,24 @@ const FeaturesSection: React.FC = () => {
             <div 
               key={index}
               className="bg-white rounded-xl sm:rounded-2xl p-6 sm:p-8 shadow-sm border border-gray-100 hover:shadow-lg transition-all duration-300 hover:-translate-y-1 group"
+              style={{
+                animationDelay: `${index * 200}ms`
+              }}
             >
-              <div className="mb-4 sm:mb-6">
+              <div className="mb-4 sm:mb-6 group-hover:scale-110 transition-transform duration-300">
                 {feature.icon}
               </div>
               
-              <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-3 sm:mb-4 group-hover:text-navy-700 transition-colors">
-                {feature.title}
+              <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-3 sm:mb-4 group-hover:text-brand-600 transition-colors">
+                <span className="hover:animate-pulse">{feature.title}</span>
               </h3>
               
-              <p className="text-sm sm:text-base text-gray-600 mb-2 sm:mb-3 leading-relaxed">
+              <p className="text-sm sm:text-base text-gray-600 mb-2 sm:mb-3 leading-relaxed break-keep group-hover:text-gray-700 transition-colors">
                 {feature.description}
               </p>
               
-              <p className="text-xs sm:text-sm text-gray-500">
-                {feature.details}
+              <p className="text-xs sm:text-sm text-gray-500 group-hover:text-gray-600 transition-colors">
+                <span className="inline-block group-hover:animate-bounce">💡</span> {feature.details}
               </p>
             </div>
           ))}
