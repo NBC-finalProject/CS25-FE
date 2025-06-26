@@ -28,7 +28,7 @@ jobs:
           username: ${{ secrets.USERNAME }}
           key: ${{ secrets.KEY }}
           script: |
-            sudo docker rm -f $(docker ps -aqf "name=^${{secrets.DOCKERHUB_REPO}}") # 컨테이너 찾아서 종료
+            sudo docker rm -f $(docker ps -aqf "name=^${{secrets.DOCKERHUB_REPO}}")
             sudo docker pull ${{secrets.DOCKERHUB_USERNAME}}/${{secrets.DOCKERHUB_REPO}}:latest
             sudo docker run \
               -e VITE_API_URL=${{ secrets.VITE_API_URL }} \
