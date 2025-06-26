@@ -3,12 +3,12 @@
   "name": "CS25 - 해설과 함께하는 CS 학습",
   "icons": [
     {
-      "src": "favicon.svg",
+      "src": "favicon.ico",
       "sizes": "any",
       "type": "image/svg+xml"
     },
     {
-      "src": "cs25.png",
+      "src": "cs25_white.png",
       "type": "image/png",
       "sizes": "192x192"
     }
