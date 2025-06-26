@@ -57,10 +57,8 @@ export const useLogout = () => {
       try {
         // 서버에 로그아웃 요청 (HttpOnly 쿠키 삭제)
         await authAPI.logout();
-        console.log('✅ Logout API call successful');
       } catch (error) {
         // 서버 로그아웃 실패시에도 로컬 상태는 초기화
-        console.warn('⚠️ Server logout failed, but clearing local state:', error);
         throw error; // 에러를 다시 던져서 UI에서 처리할 수 있도록
       }
     },
@@ -117,15 +115,8 @@ export const useAuth = () => {
     // 소셜 로그인 완료 처리 및 초기 상태 확인
     const initialCheck = async () => {
       try {
-        console.log('🔍 Starting auth check...');
-        
         // API를 통한 인증 상태 확인
         const hasTokens = await tokenManager.checkAuthStatus();
-        
-        console.log('🔍 Initial auth check:', { 
-          hasTokens,
-          url: window.location.href 
-        });
         
         setAuthState({
           isAuthenticated: hasTokens,
@@ -150,7 +141,6 @@ export const useAuth = () => {
 
     // 토큰 변경 이벤트 리스너 등록
     const handleTokenChange = (hasTokens: boolean) => {
-      console.log('🔄 Token change event:', { hasTokens }); // 디버깅용
       setAuthState({
         isAuthenticated: hasTokens,
         isLoading: false,
@@ -162,13 +152,11 @@ export const useAuth = () => {
     // 소셜 로그인 후 리다이렉트 감지 (URL 변화 또는 포커스 복구 시 재확인)
     const handleVisibilityChange = () => {
       if (!document.hidden) {
-        console.log('🔄 Page visibility changed, rechecking auth...');
         setTimeout(() => checkAuth(), 100);
       }
     };
 
     const handleFocus = () => {
-      console.log('🔄 Window focused, rechecking auth...');
       setTimeout(() => checkAuth(), 100);
     };
 

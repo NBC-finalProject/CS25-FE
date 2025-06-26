@@ -13,16 +13,14 @@ const Header: React.FC = () => {
   const logoutMutation = useLogout();
 
   // 디버깅용 로그
-  React.useEffect(() => {
-    console.log('🎯 Header auth state:', { isAuthenticated, isLoading });
-  }, [isAuthenticated, isLoading]);
+  // React.useEffect(() => {
+  //   console.log('🎯 Header auth state:', { isAuthenticated, isLoading });
+  // }, [isAuthenticated, isLoading]);
 
   // 로그아웃 핸들러
   const handleLogout = async () => {
     try {
-      console.log('🚪 User clicked logout button');
       await logoutMutation.mutateAsync();
-      console.log('✅ Logout completed successfully');
       navigate('/'); // 로그아웃 후 홈으로 이동
     } catch (error) {
       console.error('❌ 로그아웃 실패:', error);
