@@ -17,6 +17,7 @@ server {
 
   # API 요청 프록시
   location /api/ {
+    rewrite ^/api/(.*)$ /$1 break;  # /api 접두어 제거
     proxy_pass ${VITE_API_URL}/api/;
     proxy_set_header Host $host;
     proxy_set_header X-Real-IP $remote_addr;
