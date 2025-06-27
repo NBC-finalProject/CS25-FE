@@ -1,7 +1,7 @@
 import axios, { AxiosInstance, AxiosResponse, InternalAxiosRequestConfig } from 'axios';
 import { tokenManager } from './tokenManager';
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080';
+const API_BASE_URL = "https://cs25.co.kr" || 'http://localhost:8080';
 
 // Create axios instance
 const apiClient: AxiosInstance = axios.create({
