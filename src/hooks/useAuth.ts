@@ -53,7 +53,6 @@ export const useLogout = () => {
 
   return useMutation({
     mutationFn: async () => {
-      console.log('🚪 Starting logout process...');
       try {
         // 서버에 로그아웃 요청 (HttpOnly 쿠키 삭제)
         await authAPI.logout();
@@ -63,7 +62,6 @@ export const useLogout = () => {
       }
     },
     onSuccess: () => {
-      console.log('🔄 Logout success - clearing local state');
       // 로그아웃 성공시 이벤트 발생 (HttpOnly 쿠키는 서버에서 삭제됨)
       tokenManager.clearTokens();
       // 모든 캐시 클리어
