@@ -51,8 +51,6 @@ apiClient.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config;
 
-    console.log(`❌ API Error: ${originalRequest?.method?.toUpperCase()} ${originalRequest?.url} - ${error.response?.status}`);
-
     // Check if error is due to expired access token
     if (error.response?.status === 401 && !originalRequest._retry) {
       if (isRefreshing) {
