@@ -233,7 +233,7 @@ export const authAPI = {
 
   // 소셜 로그인
   socialLogin: async (provider: 'kakao' | 'github' | 'naver') => {
-    const apiUrl = "https://cs25.co.kr/api" || "http://localhost:8080";
+    const apiUrl = "https://cs25.co.kr" || "http://localhost:8080";
     window.location.href = `${apiUrl}/oauth2/authorization/${provider}`;
   }
 };
