@@ -1,0 +1,102 @@
+server {
+  listen 443 ssl;
+  server_name cs25.co.kr www.cs25.co.kr;
+
+  ssl_certificate /etc/letsencrypt/live/cs25.co.kr/fullchain.pem;
+  ssl_certificate_key /etc/letsencrypt/live/cs25.co.kr/privkey.pem;
+
+  root /usr/share/nginx/html;
+  index index.html;
+
+
+  # React Router를 위한 설정
+  location / {
+    try_files $uri $uri/ /index.html;
+  }
+
+
+  # API 요청 프록시
+  location /api/ {
+    rewrite ^/api/(.*)$ /$1 break;  # /api 접두어 제거
+    proxy_pass ${VITE_API_URL}/api/;
+    proxy_set_header Host $host;
+    proxy_set_header X-Real-IP $remote_addr;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header X-Forwarded-Proto $scheme;
+
+    # CORS 설정
+    add_header 'Access-Control-Allow-Origin' '*' always;
+    add_header 'Access-Control-Allow-Methods' 'GET, POST, PUT, DELETE, OPTIONS' always;
+    add_header 'Access-Control-Allow-Headers' 'DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range,Authorization' always;
+
+    # OPTIONS 프리플라이트 응답
+    if ($request_method = 'OPTIONS') {
+      add_header 'Access-Control-Allow-Origin' '*' always;
+      add_header 'Access-Control-Allow-Methods' 'GET, POST, PUT, DELETE, OPTIONS' always;
+      add_header 'Access-Control-Allow-Headers' 'DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range,Authorization' always;
+      add_header 'Access-Control-Max-Age' 1728000 always;
+      add_header 'Content-Type' 'text/plain; charset=utf-8';
+      add_header 'Content-Length' 0;
+      return 204;
+    }
+  }
+
+  # OAuth2 인증 프록시
+  location /oauth2/ {
+    proxy_pass ${VITE_API_URL}/oauth2/;
+    proxy_set_header Host $host;
+    proxy_set_header X-Real-IP $remote_addr;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header X-Forwarded-Proto $scheme;
+    proxy_set_header X-Forwarded-Host $host;
+    proxy_set_header X-Forwarded-Port $server_port;
+  }
+
+  # 로그인 리다이렉트
+  location /login/ {
+    proxy_pass ${VITE_API_URL}/;
+    proxy_set_header Host $host;
+    proxy_set_header X-Real-IP $remote_addr;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header X-Forwarded-Proto $scheme;
+    proxy_set_header X-Forwarded-Host $host;
+    proxy_set_header X-Forwarded-Port $server_port;
+  }
+
+  # OAuth2 로그인 리다이렉트 처리 (Spring Security가 처리하는 기본 경로)
+  location /login/oauth2/ {
+      proxy_pass ${VITE_API_URL}/login/oauth2/;
+      proxy_set_header Host $host;
+      proxy_set_header X-Real-IP $remote_addr;
+      proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+      proxy_set_header X-Forwarded-Proto $scheme;
+  }
+
+  # 정적 자산 캐싱
+  location ~* \.(css|js|png|jpg|jpeg|gif|ico|svg)$ {
+    expires 1y;
+    add_header Cache-Control "public, max-age=31536000, immutable";
+  }
+
+  # gzip 설정
+  gzip on;
+  gzip_vary on;
+  gzip_min_length 1024;
+  gzip_proxied expired no-cache no-store private auth;
+  gzip_types
+    text/plain
+    text/css
+    text/xml
+    text/javascript
+    application/x-javascript
+    application/xml+rss
+    application/javascript
+    application/json;
+
+}
+
+server {
+    listen 80;
+    server_name cs25.co.kr www.cs25.co.kr;
+    return 301 https://$host$request_uri;
+}
