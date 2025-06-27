@@ -14,7 +14,7 @@ const TodayEmailFormSection: React.FC = () => {
       <Container>
         <div className="text-center max-w-3xl mx-auto mb-8 sm:mb-12 px-4 sm:px-0">
           <div className="inline-flex items-center bg-brand-100 rounded-full px-4 sm:px-6 py-2 mb-6 sm:mb-8">
-            <span className="text-xs sm:text-sm font-medium text-brand-700">📧 메일 미리보기</span>
+            <span className="text-xs sm:text-sm font-medium text-brand-700">메일 미리보기</span>
           </div>
           
           <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-4 sm:mb-6 text-gray-900">

@@ -12,7 +12,7 @@ const HeroSection: React.FC<HeroSectionProps> = ({ onSubscribeClick }) => {
       <Container>
         <div className="max-w-4xl mx-auto">
           <div className="inline-flex items-center bg-brand-100 rounded-full px-4 sm:px-6 py-2 mb-6 sm:mb-8">
-            <span className="text-xs sm:text-sm font-medium text-brand-700">🤖 AI가 생성하고 해설하는 CS 지식</span>
+            <span className="text-xs sm:text-sm font-medium text-brand-700">AI가 생성하고 해설하는 CS 지식</span>
           </div>
           
           <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-4 sm:mb-6 leading-tight tracking-tight text-gray-900">

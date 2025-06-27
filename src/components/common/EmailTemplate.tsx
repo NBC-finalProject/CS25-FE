@@ -45,7 +45,7 @@ const EmailTemplate: React.FC<EmailTemplateProps> = ({ toEmail, quizLink }) => {
               onClick={() => navigate('/quiz')}
               className="inline-block bg-gradient-to-r from-brand-500 to-brand-600 text-white px-6 sm:px-8 py-3 sm:py-4 rounded-full font-semibold text-base sm:text-lg transition-all duration-300 hover:from-brand-600 hover:to-brand-700 hover:shadow-lg w-full sm:w-auto max-w-xs"
             >
-              🧠 연습문제 풀기
+              연습문제 풀기
             </button>
           </div>
 
