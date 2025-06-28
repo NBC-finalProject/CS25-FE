@@ -38,6 +38,49 @@ module.exports = {
         'kakao': '#FEE500',
         'naver': '#03C75A',
       },
+      keyframes: {
+        'fade-in-smooth': {
+          '0%': {
+            opacity: '0',
+            transform: 'translateY(10px) scale(0.8)'
+          },
+          '50%': {
+            opacity: '0.7',
+            transform: 'translateY(-2px) scale(1.05)'
+          },
+          '100%': {
+            opacity: '1',
+            transform: 'translateY(0) scale(1)'
+          }
+        },
+        'fade-in-soft': {
+          '0%': {
+            opacity: '0',
+            transform: 'translateY(8px) scale(0.9)'
+          },
+          '60%': {
+            opacity: '0.8',
+            transform: 'translateY(-1px) scale(1.02)'
+          },
+          '100%': {
+            opacity: '1',
+            transform: 'translateY(0) scale(1)'
+          }
+        },
+        'typing': {
+          'from': { 
+            width: '0' 
+          },
+          'to': { 
+            width: '100%' 
+          }
+        }
+      },
+      animation: {
+        'fade-in-smooth': 'fade-in-smooth 0.6s ease-out forwards',
+        'fade-in-soft': 'fade-in-soft 0.5s ease-out forwards',
+        'typing': 'typing 2s steps(40, end)',
+      },
     },
   },
   plugins: [],

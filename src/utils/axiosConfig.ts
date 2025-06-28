@@ -1,9 +1,9 @@
 import axios, { AxiosInstance, AxiosResponse, InternalAxiosRequestConfig } from 'axios';
-import { tokenManager } from './tokenManager';
 
-const API_BASE_URL = "https://cs25.co.kr" || 'http://localhost:8080';
+const { NODE_ENV } = import.meta.env;
+const API_BASE_URL = NODE_ENV === 'prod' ? 'https://cs25.co.kr' : 'http://localhost:8080';
 
-// Create axios instance
+// Create axios instance for authenticated requests
 const apiClient: AxiosInstance = axios.create({
   baseURL: API_BASE_URL,
   headers: {

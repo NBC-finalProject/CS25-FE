@@ -40,12 +40,6 @@ interface SelectionRatesData {
   totalCount: number;
 }
 
-interface AiFeedbackResponse {
-  quizId: number;
-  quizAnswerId: number;
-  isCorrect: boolean;
-  aiFeedback: string;
-}
 
 // 임시 데이터
 const fakeTodayQuiz: QuizData = {
@@ -74,10 +68,70 @@ const TodayQuizSection: React.FC = () => {
   const [selectionRates, setSelectionRates] = useState<SelectionRatesData | null>(null);
   const [animatedPercentages, setAnimatedPercentages] = useState<{[key: number]: number}>({});
   const [isAiFeedbackLoading, setIsAiFeedbackLoading] = useState(false);
+  const [streamingFeedback, setStreamingFeedback] = useState<string>('');
+  const [feedbackResult, setFeedbackResult] = useState<string>('');
+  const [feedbackContent, setFeedbackContent] = useState<string>('');
+  const [isStreamingComplete, setIsStreamingComplete] = useState(false);
+  const [isCorrectFromAI, setIsCorrectFromAI] = useState<boolean | null>(null);
+  const [displayedResult, setDisplayedResult] = useState<string>('');
+  const [displayedFeedback, setDisplayedFeedback] = useState<string>('');
   const { openModal } = useModal();
 
   const subscriptionId = searchParams.get('subscriptionId');
   const quizId = searchParams.get('quizId');
+
+  // 타이핑 애니메이션 효과를 위한 useEffect
+  React.useEffect(() => {
+    if (!feedbackResult) {
+      setDisplayedResult('');
+      return;
+    }
+
+    let index = 0;
+    setDisplayedResult('');
+    
+    const interval = setInterval(() => {
+      if (index < feedbackResult.length) {
+        const char = feedbackResult[index];
+        if (char !== undefined) {
+          // 공백 문자를 명시적으로 처리
+          const displayChar = char === ' ' ? ' ' : char;
+          setDisplayedResult(prev => prev + displayChar);
+        }
+        index++;
+      } else {
+        clearInterval(interval);
+      }
+    }, 50); // 50ms마다 한 글자씩 (더 빠르게)
+
+    return () => clearInterval(interval);
+  }, [feedbackResult]);
+
+  React.useEffect(() => {
+    if (!feedbackContent) {
+      setDisplayedFeedback('');
+      return;
+    }
+
+    let index = 0;
+    setDisplayedFeedback('');
+    
+    const interval = setInterval(() => {
+      if (index < feedbackContent.length) {
+        const char = feedbackContent[index];
+        if (char !== undefined) {
+          // 공백 문자를 명시적으로 처리
+          const displayChar = char === ' ' ? ' ' : char;
+          setDisplayedFeedback(prev => prev + displayChar);
+        }
+        index++;
+      } else {
+        clearInterval(interval);
+      }
+    }, 50); // 50ms마다 한 글자씩 (더 빠르게)
+
+    return () => clearInterval(interval);
+  }, [feedbackContent]);
 
   // 답변 제출 후 게이지 애니메이션 효과
   React.useEffect(() => {
@@ -222,6 +276,7 @@ const TodayQuizSection: React.FC = () => {
           setAnswerResult(initialResult);
           setIsSubmitted(true);
           setIsAiFeedbackLoading(true);
+          setStreamingFeedback('AI 응답 대기 중...');
           
           let answerId: string;
           
@@ -238,32 +293,94 @@ const TodayQuizSection: React.FC = () => {
             answerId = (submitResponse as any).toString();
           }
           
-          console.log('추출된 answerId:', answerId);
-          
           try {
-            // AI 피드백 요청
-            console.log('AI 피드백 요청 중:', `/quizzes/${answerId}/feedback`);
-            const feedbackResponse = await quizAPI.getAiFeedback(answerId);
-            console.log('AI 피드백 응답:', feedbackResponse);
-            let feedbackData: AiFeedbackResponse;
+            // SSE를 통한 AI 피드백 스트리밍
+            console.log('AI 피드백 스트리밍 시작:', `/quizzes/${answerId}/feedback`);
+            setStreamingFeedback('');
+            setFeedbackResult('');
+            setFeedbackContent('');
+            setIsStreamingComplete(false);
+            setIsCorrectFromAI(null);
+            setDisplayedResult('');
+            setDisplayedFeedback('');
             
-            // API 응답 구조 처리
-            if (feedbackResponse && typeof feedbackResponse === 'object') {
-              feedbackData = ('data' in feedbackResponse) ? feedbackResponse.data as AiFeedbackResponse : feedbackResponse as AiFeedbackResponse;
-            } else {
-              throw new Error('피드백 응답 형식이 올바르지 않습니다.');
-            }
+            const eventSource = quizAPI.streamAiFeedback(
+              answerId,
+              // onData: 스트리밍 데이터 수신
+              (data: string) => {
+                // 받은 데이터 로깅 (디버깅용)
+                console.log('받은 SSE 데이터:', JSON.stringify(data));
+                
+                setStreamingFeedback(prev => {
+                  // 첫 번째 데이터가 오면 "AI 응답 대기 중..." 제거
+                  let currentText = prev;
+                  if (prev === 'AI 응답 대기 중...') {
+                    currentText = '';
+                  }
+                  
+                  const newText = currentText + data;
+                  
+                  // '정답:' 또는 '오답:' 부분과 '피드백:' 부분 실시간 파싱
+                  if (newText.includes('정답:') || newText.includes('오답:')) {
+                    // 정답/오답 여부 즉시 설정
+                    if (newText.includes('정답:') && isCorrectFromAI === null) {
+                      setIsCorrectFromAI(true);
+                    } else if (newText.includes('오답:') && isCorrectFromAI === null) {
+                      setIsCorrectFromAI(false);
+                    }
+                    
+                    // 피드백 구분자 찾기
+                    const feedbackIndex = newText.indexOf('피드백:');
+                    
+                    if (feedbackIndex === -1) {
+                      // 피드백 부분이 아직 안 나옴 - 결과 부분만 업데이트
+                      setFeedbackResult(newText.replace(/^(정답:|오답:)/, '').trim());
+                    } else {
+                      // 피드백 부분이 나옴 - 결과와 피드백 분리
+                      const resultPart = newText.substring(0, feedbackIndex).replace(/^(정답:|오답:)/, '').trim();
+                      const feedbackPart = newText.substring(feedbackIndex + 3).trim(); // '피드백:' 이후
+                      
+                      setFeedbackResult(resultPart);
+                      setFeedbackContent(feedbackPart);
+                    }
+                  }
+                  
+                  return newText;
+                });
+              },
+              // onComplete: 스트리밍 완료
+              () => {
+                console.log('AI 피드백 스트리밍 완료');
+                setIsStreamingComplete(true);
+                setIsAiFeedbackLoading(false);
+                
+                // 최종 결과 업데이트
+                const updatedResult: AnswerResult = {
+                  isCorrect: streamingFeedback.startsWith('정답:'),
+                  answer: displayQuiz.answer || '',
+                  commentary: displayQuiz.commentary,
+                  aiFeedback: streamingFeedback
+                };
+                
+                setAnswerResult(updatedResult);
+              },
+              // onError: 에러 처리
+              (error: Event) => {
+                console.error('AI 피드백 스트리밍 실패:', error);
+                
+                const errorResult: AnswerResult = {
+                  isCorrect: false,
+                  answer: displayQuiz.answer || '',
+                  commentary: displayQuiz.commentary,
+                  aiFeedback: 'AI 피드백을 가져오는데 실패했습니다.'
+                };
+                
+                setAnswerResult(errorResult);
+                setIsAiFeedbackLoading(false);
+              }
+            );
             
-            // AI 피드백 받은 후 결과 업데이트
-            const updatedResult: AnswerResult = {
-              isCorrect: feedbackData.isCorrect,
-              answer: displayQuiz.answer || '',
-              commentary: displayQuiz.commentary,
-              aiFeedback: feedbackData.aiFeedback
-            };
-            
-            setAnswerResult(updatedResult);
-            setIsAiFeedbackLoading(false);
+            // SSE 연결은 자동으로 완료되거나 에러 시 닫힘
           } catch (feedbackError) {
             console.error('AI 피드백 요청 실패:', feedbackError);
             
@@ -569,81 +686,86 @@ const TodayQuizSection: React.FC = () => {
                     {displayQuiz?.quizType === 'SUBJECTIVE' && (
                       <div className="p-4 bg-blue-50 rounded-xl mb-6">
                         <h4 className="text-lg font-bold text-gray-900 mb-2">AI 피드백</h4>
-                        {isAiFeedbackLoading ? (
+                        {isAiFeedbackLoading && !isCorrectFromAI && !feedbackResult && !feedbackContent ? (
                           <div className="flex items-center space-x-3">
                             <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-blue-600"></div>
                             <p className="text-blue-700">AI가 피드백을 생성하고 있습니다...</p>
                           </div>
-                        ) : answerResult.aiFeedback ? (
-                          <div>
-                            {(() => {
-                              // AI 피드백 텍스트 파싱
-                              const feedbackText = answerResult.aiFeedback;
-                              const resultMatch = feedbackText.match(/^(정답|오답):\s*(.*?)(?:\s*피드백:\s*(.*))?$/); 
-                              
-                              if (resultMatch) {
-                                const [, resultType, resultDescription, feedbackContent] = resultMatch;
-                                const isCorrectFromText = resultType === '정답';
-                                
-                                return (
-                                  <div>
-                                    {/* 정답/오답 결과 */}
-                                    <div className={`inline-flex items-center rounded-full px-4 py-2 mb-3 ${
-                                      isCorrectFromText ? 'bg-green-100' : 'bg-red-100'
-                                    }`}>
-                                      <span className={`text-sm font-bold ${
-                                        isCorrectFromText ? 'text-green-700' : 'text-red-700'
-                                      }`}>
-                                        {isCorrectFromText ? '🎉 정답입니다!' : '❌ 틀렸습니다!'}
-                                      </span>
-                                    </div>
-                                    
-                                    {/* 결과 설명 */}
-                                    {resultDescription && (
-                                      <div className={`p-3 rounded-lg mb-3 ${
-                                        isCorrectFromText ? 'bg-green-50' : 'bg-red-50'
-                                      }`}>
-                                        <p className={`text-sm ${
-                                          isCorrectFromText ? 'text-green-800' : 'text-red-800'
-                                        }`}>
-                                          <span className="font-semibold">{resultType}:</span> {resultDescription.trim()}
-                                        </p>
-                                      </div>
-                                    )}
-                                    
-                                    {/* 피드백 내용 */}
-                                    {feedbackContent && (
-                                      <div className="p-3 bg-blue-50 rounded-lg">
-                                        <p className="text-blue-800 text-sm">
-                                          <span className="font-semibold">피드백:</span> {feedbackContent.trim()}
-                                        </p>
-                                      </div>
-                                    )}
-                                  </div>
-                                );
-                              } else {
-                                // 파싱 실패 시 기본 형태로 표시
-                                return (
-                                  <div>
-                                    <div className={`inline-flex items-center rounded-full px-4 py-2 mb-3 ${
-                                      answerResult.isCorrect ? 'bg-green-100' : 'bg-red-100'
-                                    }`}>
-                                      <span className={`text-sm font-bold ${
-                                        answerResult.isCorrect ? 'text-green-700' : 'text-red-700'
-                                      }`}>
-                                        {answerResult.isCorrect ? '🎉 정답입니다!' : '❌ 틀렸습니다!'}
-                                      </span>
-                                    </div>
-                                    <p className="text-blue-800 leading-relaxed text-sm">
-                                      {answerResult.aiFeedback}
-                                    </p>
-                                  </div>
-                                );
-                              }
-                            })()}
-                          </div>
                         ) : (
-                          <p className="text-blue-700">AI 피드백을 불러오는 중...</p>
+                          <div>
+                            {/* 정답/오답 결과 배지 */}
+                            {isCorrectFromAI !== null && (
+                              <div className={`inline-flex items-center rounded-full px-4 py-2 mb-3 ${
+                                isCorrectFromAI ? 'bg-green-100' : 'bg-red-100'
+                              }`}>
+                                <span className={`text-sm font-bold ${
+                                  isCorrectFromAI ? 'text-green-700' : 'text-red-700'
+                                }`}>
+                                  {isCorrectFromAI ? '🎉 정답입니다!' : '❌ 틀렸습니다!'}
+                                </span>
+                              </div>
+                            )}
+                            
+                            {/* 결과 설명 */}
+                            {feedbackResult && (
+                              <div className={`p-3 rounded-lg mb-3 transform transition-all duration-500 ease-in-out ${
+                                isCorrectFromAI ? 'bg-green-50' : 'bg-red-50'
+                              }`}>
+                                <p className={`text-sm leading-relaxed whitespace-pre-wrap break-words ${
+                                  isCorrectFromAI ? 'text-green-800' : 'text-red-800'
+                                }`}>
+                                  <span className="font-semibold">
+                                    {isCorrectFromAI ? '정답: ' : '오답: '}
+                                  </span>
+                                  <span className="animate-fade-in-soft" style={{ 
+                                    wordSpacing: '0.25em', 
+                                    letterSpacing: '0.02em',
+                                    whiteSpace: 'pre-wrap',
+                                    display: 'inline'
+                                  }}>
+                                    {displayedResult}
+                                  </span>
+                                  {(displayedResult.length < feedbackResult.length || (!isStreamingComplete && !feedbackContent)) && (
+                                    <span className="animate-pulse text-blue-600 ml-1">▊</span>
+                                  )}
+                                </p>
+                              </div>
+                            )}
+                            
+                            {/* 피드백 내용 */}
+                            {feedbackContent && (
+                              <div className="p-3 bg-blue-50 rounded-lg transform transition-all duration-500 ease-in-out">
+                                <p className="text-blue-800 text-sm leading-relaxed whitespace-pre-wrap break-words">
+                                  <span className="font-semibold">피드백: </span>
+                                  <span className="animate-fade-in-soft" style={{ 
+                                    wordSpacing: '0.25em', 
+                                    letterSpacing: '0.02em',
+                                    whiteSpace: 'pre-wrap',
+                                    display: 'inline'
+                                  }}>
+                                    {displayedFeedback}
+                                  </span>
+                                  {(displayedFeedback.length < feedbackContent.length || !isStreamingComplete) && (
+                                    <span className="animate-pulse text-blue-600 ml-1">▊</span>
+                                  )}
+                                </p>
+                              </div>
+                            )}
+
+                            {/* 스트리밍 중인 전체 텍스트 (파싱되지 않은 경우) */}
+                            {streamingFeedback && !feedbackResult && !feedbackContent && streamingFeedback !== 'AI 응답 대기 중...' && (
+                              <div className="p-3 bg-blue-50 rounded-lg">
+                                <p className="text-blue-800 text-sm leading-relaxed whitespace-pre-wrap break-words">
+                                  <span style={{ wordSpacing: '0.25em', letterSpacing: '0.02em' }}>
+                                    {streamingFeedback}
+                                  </span>
+                                  {!isStreamingComplete && (
+                                    <span className="animate-pulse text-blue-600 ml-1">▊</span>
+                                  )}
+                                </p>
+                              </div>
+                            )}
+                          </div>
                         )}
                       </div>
                     )}
