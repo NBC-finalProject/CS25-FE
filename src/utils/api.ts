@@ -155,7 +155,7 @@ export const quizAPI = {
   streamAiFeedback: (answerId: string, onData: (data: string) => void, onComplete: () => void, onError: (error: Event) => void) => {
     const { NODE_ENV } = import.meta.env;
     const API_BASE_URL = NODE_ENV === 'prod' ? 'https://cs25.co.kr' : 'http://localhost:8080';
-    const eventSource = new EventSource(`${API_BASE_URL}/quizzes/${answerId}/feedback`, { withCredentials: true });
+    const eventSource = new EventSource(`${API_BASE_URL}/quizzes/answers/${answerId}/feedback-sentence`, { withCredentials: true });
     
     eventSource.onmessage = (event) => {
       onData(event.data);

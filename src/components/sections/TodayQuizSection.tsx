@@ -73,65 +73,48 @@ const TodayQuizSection: React.FC = () => {
   const [feedbackContent, setFeedbackContent] = useState<string>('');
   const [isStreamingComplete, setIsStreamingComplete] = useState(false);
   const [isCorrectFromAI, setIsCorrectFromAI] = useState<boolean | null>(null);
-  const [displayedResult, setDisplayedResult] = useState<string>('');
-  const [displayedFeedback, setDisplayedFeedback] = useState<string>('');
+  const [resultChars, setResultChars] = useState<string[]>([]);
+  const [feedbackChars, setFeedbackChars] = useState<string[]>([]);
   const { openModal } = useModal();
 
   const subscriptionId = searchParams.get('subscriptionId');
   const quizId = searchParams.get('quizId');
 
-  // 타이핑 애니메이션 효과를 위한 useEffect
+  // 결과 텍스트를 글자별로 분리하고 애니메이션 적용
   React.useEffect(() => {
     if (!feedbackResult) {
-      setDisplayedResult('');
+      setResultChars([]);
       return;
     }
 
-    let index = 0;
-    setDisplayedResult('');
-    
-    const interval = setInterval(() => {
-      if (index < feedbackResult.length) {
-        const char = feedbackResult[index];
-        if (char !== undefined) {
-          // 공백 문자를 명시적으로 처리
-          const displayChar = char === ' ' ? ' ' : char;
-          setDisplayedResult(prev => prev + displayChar);
-        }
-        index++;
-      } else {
-        clearInterval(interval);
-      }
-    }, 50); // 50ms마다 한 글자씩 (더 빠르게)
+    // 3초 후에 글자별 애니메이션 시작
+    const initialDelay = setTimeout(() => {
+      // 마침표 후에 줄바꿈 추가하여 텍스트 처리
+      const processedText = feedbackResult.replace(/\./g, '.\n');
+      const chars = processedText.split('');
+      setResultChars(chars);
+    }, 3000);
 
-    return () => clearInterval(interval);
+    return () => clearTimeout(initialDelay);
   }, [feedbackResult]);
 
+  // 피드백 텍스트를 글자별로 분리하고 애니메이션 적용
   React.useEffect(() => {
-    if (!feedbackContent) {
-      setDisplayedFeedback('');
+    if (!feedbackContent || resultChars.length === 0) {
+      setFeedbackChars([]);
       return;
     }
 
-    let index = 0;
-    setDisplayedFeedback('');
-    
-    const interval = setInterval(() => {
-      if (index < feedbackContent.length) {
-        const char = feedbackContent[index];
-        if (char !== undefined) {
-          // 공백 문자를 명시적으로 처리
-          const displayChar = char === ' ' ? ' ' : char;
-          setDisplayedFeedback(prev => prev + displayChar);
-        }
-        index++;
-      } else {
-        clearInterval(interval);
-      }
-    }, 50); // 50ms마다 한 글자씩 (더 빠르게)
+    // 결과 부분이 완료된 후 1초 후에 피드백 애니메이션 시작
+    const timer = setTimeout(() => {
+      // 마침표 후에 줄바꿈 추가하여 텍스트 처리
+      const processedText = feedbackContent.replace(/\./g, '.\n');
+      const chars = processedText.split('');
+      setFeedbackChars(chars);
+    }, 1000);
 
-    return () => clearInterval(interval);
-  }, [feedbackContent]);
+    return () => clearTimeout(timer);
+  }, [feedbackContent, resultChars.length]);
 
   // 답변 제출 후 게이지 애니메이션 효과
   React.useEffect(() => {
@@ -295,16 +278,15 @@ const TodayQuizSection: React.FC = () => {
           
           try {
             // SSE를 통한 AI 피드백 스트리밍
-            console.log('AI 피드백 스트리밍 시작:', `/quizzes/${answerId}/feedback`);
             setStreamingFeedback('');
             setFeedbackResult('');
             setFeedbackContent('');
             setIsStreamingComplete(false);
             setIsCorrectFromAI(null);
-            setDisplayedResult('');
-            setDisplayedFeedback('');
+            setResultChars([]);
+            setFeedbackChars([]);
             
-            const eventSource = quizAPI.streamAiFeedback(
+            quizAPI.streamAiFeedback(
               answerId,
               // onData: 스트리밍 데이터 수신
               (data: string) => {
@@ -334,10 +316,11 @@ const TodayQuizSection: React.FC = () => {
                     
                     if (feedbackIndex === -1) {
                       // 피드백 부분이 아직 안 나옴 - 결과 부분만 업데이트
-                      setFeedbackResult(newText.replace(/^(정답:|오답:)/, '').trim());
+                      const resultText = newText.replace(/^(정답:|오답:)\s*/, '').trim();
+                      setFeedbackResult(resultText);
                     } else {
                       // 피드백 부분이 나옴 - 결과와 피드백 분리
-                      const resultPart = newText.substring(0, feedbackIndex).replace(/^(정답:|오답:)/, '').trim();
+                      const resultPart = newText.substring(0, feedbackIndex).replace(/^(정답:|오답:)\s*/, '').trim();
                       const feedbackPart = newText.substring(feedbackIndex + 3).trim(); // '피드백:' 이후
                       
                       setFeedbackResult(resultPart);
@@ -685,19 +668,21 @@ const TodayQuizSection: React.FC = () => {
                     {displayQuiz?.quizType === 'SUBJECTIVE' && (
                       <div className="p-4 bg-blue-50 rounded-xl mb-6">
                         <h4 className="text-lg font-bold text-gray-900 mb-2">AI 피드백</h4>
-                        {isAiFeedbackLoading && !isCorrectFromAI && !feedbackResult && !feedbackContent ? (
+                        {(isAiFeedbackLoading && !feedbackResult) || (feedbackResult && resultChars.length === 0) ? (
                           <div className="flex items-center space-x-3">
                             <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-blue-600"></div>
-                            <p className="text-blue-700">AI가 피드백을 생성하고 있습니다...</p>
+                            <p className="text-blue-700">
+                              {!feedbackResult ? 'AI가 피드백을 생성하고 있습니다...' : 'AI 피드백을 준비하고 있습니다...'}
+                            </p>
                           </div>
                         ) : (
                           <div>
                             {/* 정답/오답 결과 배지 */}
                             {isCorrectFromAI !== null && (
-                              <div className={`inline-flex items-center rounded-full px-4 py-2 mb-3 ${
+                              <div className={`inline-flex items-center rounded-full px-4 py-2 mb-3 animate-reveal-down ${
                                 isCorrectFromAI ? 'bg-green-100' : 'bg-red-100'
                               }`}>
-                                <span className={`text-sm font-bold ${
+                                <span className={`text-sm font-bold animate-text-reveal-up ${
                                   isCorrectFromAI ? 'text-green-700' : 'text-red-700'
                                 }`}>
                                   {isCorrectFromAI ? '🎉 정답입니다!' : '❌ 틀렸습니다!'}
@@ -706,47 +691,65 @@ const TodayQuizSection: React.FC = () => {
                             )}
                             
                             {/* 결과 설명 */}
-                            {feedbackResult && (
-                              <div className={`p-3 rounded-lg mb-3 transform transition-all duration-500 ease-in-out ${
+                            {resultChars.length > 0 && (
+                              <div className={`p-3 rounded-lg mb-3 animate-reveal-up ${
                                 isCorrectFromAI ? 'bg-green-50' : 'bg-red-50'
                               }`}>
                                 <p className={`text-sm leading-relaxed whitespace-pre-wrap break-words ${
                                   isCorrectFromAI ? 'text-green-800' : 'text-red-800'
                                 }`}>
-                                  <span className="font-semibold">
+                                  <span className="font-semibold animate-text-reveal-down">
                                     {isCorrectFromAI ? '정답: ' : '오답: '}
                                   </span>
-                                  <span className="animate-fade-in-soft" style={{ 
-                                    wordSpacing: '0.25em', 
-                                    letterSpacing: '0.02em',
-                                    whiteSpace: 'pre-wrap',
-                                    display: 'inline'
-                                  }}>
-                                    {displayedResult}
-                                  </span>
-                                  {(displayedResult.length < feedbackResult.length || (!isStreamingComplete && !feedbackContent)) && (
-                                    <span className="animate-pulse text-blue-600 ml-1">▊</span>
-                                  )}
+                                  {resultChars.map((char, index) => {
+                                    if (char === '\n') {
+                                      return <br key={`result-br-${index}`} />;
+                                    }
+                                    return (
+                                      <span
+                                        key={`result-${index}`}
+                                        className="inline-block opacity-0"
+                                        style={{
+                                          animation: `wave-reveal 0.6s cubic-bezier(0.18,0.89,0.82,1.04) forwards`,
+                                          animationDelay: `${index * 50}ms`,
+                                          wordSpacing: '0.25em',
+                                          letterSpacing: '0.02em'
+                                        }}
+                                      >
+                                        {char}
+                                      </span>
+                                    );
+                                  })}
                                 </p>
                               </div>
                             )}
                             
-                            {/* 피드백 내용 */}
-                            {feedbackContent && (
-                              <div className="p-3 bg-blue-50 rounded-lg transform transition-all duration-500 ease-in-out">
+                            {/* 피드백 내용 - 결과 부분이 완료된 후에만 표시 */}
+                            {feedbackChars.length > 0 && (
+                              <div className="p-3 bg-blue-50 rounded-lg animate-reveal-up">
                                 <p className="text-blue-800 text-sm leading-relaxed whitespace-pre-wrap break-words">
-                                  <span className="font-semibold">피드백: </span>
-                                  <span className="animate-fade-in-soft" style={{ 
-                                    wordSpacing: '0.25em', 
-                                    letterSpacing: '0.02em',
-                                    whiteSpace: 'pre-wrap',
-                                    display: 'inline'
-                                  }}>
-                                    {displayedFeedback}
+                                  <span className="font-semibold animate-text-reveal-down">
+                                    피드백
                                   </span>
-                                  {(displayedFeedback.length < feedbackContent.length || !isStreamingComplete) && (
-                                    <span className="animate-pulse text-blue-600 ml-1">▊</span>
-                                  )}
+                                  {feedbackChars.map((char, index) => {
+                                    if (char === '\n') {
+                                      return <br key={`feedback-br-${index}`} />;
+                                    }
+                                    return (
+                                      <span
+                                        key={`feedback-${index}`}
+                                        className="inline-block opacity-0"
+                                        style={{
+                                          animation: `wave-reveal 0.6s cubic-bezier(0.18,0.89,0.82,1.04) forwards`,
+                                          animationDelay: `${index * 50}ms`,
+                                          wordSpacing: '0.25em',
+                                          letterSpacing: '0.02em'
+                                        }}
+                                      >
+                                        {char}
+                                      </span>
+                                    );
+                                  })}
                                 </p>
                               </div>
                             )}
