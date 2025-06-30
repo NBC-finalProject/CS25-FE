@@ -395,11 +395,10 @@ const TodayQuizSection: React.FC = () => {
             setIsAiFeedbackLoading(false);
           }
         }
-      } catch (error: any) {
-        
+      } catch (error: any) {    
         // 400 에러 체크 및 메시지 처리
-        if (error?.status === 400) {
-          const errorMessage = error?.message || '잘못된 요청입니다. 답안 제출에 실패했습니다.';
+        if (error?.status) {
+          const errorMessage = error?.response.data.message || '잘못된 요청입니다. 답안 제출에 실패했습니다.';
           
           openModal({
             title: '알림',
