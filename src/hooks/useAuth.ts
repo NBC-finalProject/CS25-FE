@@ -147,15 +147,25 @@ export const useAuth = () => {
 
     tokenManager.onTokenChange(handleTokenChange);
 
+    // 디바운싱을 위한 타이머 관리
+    let debounceTimer: NodeJS.Timeout | null = null;
+
+    const debouncedCheckAuth = () => {
+      if (debounceTimer) {
+        clearTimeout(debounceTimer);
+      }
+      debounceTimer = setTimeout(() => checkAuth(), 2000); // 2초 디바운싱
+    };
+
     // 소셜 로그인 후 리다이렉트 감지 (URL 변화 또는 포커스 복구 시 재확인)
     const handleVisibilityChange = () => {
       if (!document.hidden) {
-        setTimeout(() => checkAuth(), 100);
+        debouncedCheckAuth();
       }
     };
 
     const handleFocus = () => {
-      setTimeout(() => checkAuth(), 100);
+      debouncedCheckAuth();
     };
 
     document.addEventListener('visibilitychange', handleVisibilityChange);
@@ -164,6 +174,9 @@ export const useAuth = () => {
     // 클린업
     return () => {
       clearTimeout(timer);
+      if (debounceTimer) {
+        clearTimeout(debounceTimer);
+      }
       tokenManager.offTokenChange(handleTokenChange);
       document.removeEventListener('visibilitychange', handleVisibilityChange);
       window.removeEventListener('focus', handleFocus);
