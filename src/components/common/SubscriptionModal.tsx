@@ -252,6 +252,12 @@ const SubscriptionModal: React.FC<SubscriptionModalProps> = ({ isOpen, onClose }
     onClose();
   };
 
+  // 요일을 월~일 순서로 정렬하는 함수
+  const sortWeekdays = (selectedWeekdays: string[]): string[] => {
+    const weekdayOrder = weekdays.map(weekday => weekday.id);
+    return selectedWeekdays.sort((a, b) => weekdayOrder.indexOf(a) - weekdayOrder.indexOf(b));
+  };
+
 
   const renderFormStep = () => (
     <form onSubmit={handleSubmit} className="space-y-4">
@@ -556,7 +562,7 @@ const SubscriptionModal: React.FC<SubscriptionModalProps> = ({ isOpen, onClose }
             <p><strong>이메일:</strong> {formData.email}</p>
             <p><strong>분야:</strong> {formData.categories.map(cat => 
               categories.find(c => c.id === cat)?.label).join(', ')}</p>
-            <p><strong>요일:</strong> {formData.weekdays.map(day => 
+            <p><strong>요일:</strong> {sortWeekdays(formData.weekdays).map(day => 
               weekdays.find(w => w.id === day)?.label).join(', ')}</p>
             <p><strong>구독 기간:</strong> {periods.find(p => p.id === formData.period)?.label}</p>
           </div>

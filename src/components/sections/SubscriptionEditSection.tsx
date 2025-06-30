@@ -54,7 +54,7 @@ const SubscriptionEditSection: React.FC = () => {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
             </svg>
           </div>
-          <p className="text-gray-700 text-lg">구독정보가 성공적으로 수정되었습니다.</p>
+          <p className="text-gray-700">구독정보가 성공적으로 수정되었습니다.</p>
         </div>
       ),
       size: 'sm'
