@@ -74,7 +74,7 @@ apiClient.interceptors.response.use(
         
         // HttpOnly 쿠키 기반 토큰 재발급 시도
         // refreshToken은 HttpOnly 쿠키에 있으므로 자동으로 포함됨
-        const response = await axios.post(`${API_BASE_URL}/auth/reissue`, {
+        await axios.post(`${API_BASE_URL}/auth/reissue`, {
           // ReissueRequestDto - 백엔드에서 요구하는 형식에 맞춤
           // 만약 빈 객체도 허용한다면 이대로, 특정 필드가 필요하면 추가
         }, {

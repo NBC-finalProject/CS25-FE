@@ -2,6 +2,9 @@
 import apiClient from './axiosConfig';
 import { AxiosResponse } from 'axios';
 
+const { NODE_ENV } = import.meta.env;
+const apiUrl = NODE_ENV === 'prod' ? 'https://cs25.co.kr' : 'http://localhost:8080';
+
 // Axios wrapper for consistency with existing code
 async function apiRequest<T>(
   endpoint: string,
@@ -153,9 +156,7 @@ export const quizAPI = {
 
   // AI 피드백 SSE 스트리밍 (주관식)
   streamAiFeedback: (answerId: string, onData: (data: string) => void, onComplete: () => void, onError: (error: Event) => void) => {
-    const { NODE_ENV } = import.meta.env;
-    const API_BASE_URL = NODE_ENV === 'prod' ? 'https://cs25.co.kr' : 'http://localhost:8080';
-    const eventSource = new EventSource(`${API_BASE_URL}/quizzes/answers/${answerId}/feedback-sentence`, { withCredentials: true });
+    const eventSource = new EventSource(`${apiUrl}/quizzes/answers/${answerId}/feedback-sentence`, { withCredentials: true });
     
     eventSource.onmessage = (event) => {
       onData(event.data);
@@ -257,8 +258,6 @@ export const authAPI = {
 
   // 소셜 로그인
   socialLogin: async (provider: 'kakao' | 'github' | 'naver') => {
-    const { NODE_ENV } = import.meta.env;
-    const apiUrl = NODE_ENV === 'prod' ? "https://cs25.co.kr" : "http://localhost:8080";
     window.location.href = `${apiUrl}/oauth2/authorization/${provider}`;
   }
 };
