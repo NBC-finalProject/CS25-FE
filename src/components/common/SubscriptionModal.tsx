@@ -171,15 +171,15 @@ const SubscriptionModal: React.FC<SubscriptionModalProps> = ({ isOpen, onClose }
           onSuccess: () => {
             setStep('verification');
           },
-          onError: (error) => {
-            console.error('이메일 인증 요청 실패:', error);
-            setEmailError('이메일 인증 요청에 실패했습니다. 다시 시도해주세요.');
+          onError: (error: any) => {
+            console.error('이메일 인증 요청 실패:', error.message);
+            setEmailError(error.response.data.message);
           },
         });
       },
-      onError: (error) => {
+      onError: (error: any) => {
         console.error('이메일 중복 체크 실패:', error);
-        setEmailError('이미 구독 중인 이메일입니다.');
+        setEmailError(error.response.data.message);
       },
     });
   };
