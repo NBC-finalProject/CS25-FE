@@ -22,6 +22,7 @@ ENV NODE_ENV=$NODE_ENV
 
 # Vite로 빌드
 RUN echo "VITE_API_URL=$VITE_API_URL"
+RUN echo "NODE_ENV=$NODE_ENV"
 RUN npm run build
 
 # 2단계: 프로덕션 스테이지

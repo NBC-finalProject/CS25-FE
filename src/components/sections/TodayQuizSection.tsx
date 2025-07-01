@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { quizAPI } from '../../utils/api';
@@ -76,9 +76,20 @@ const TodayQuizSection: React.FC = () => {
   const [resultChars, setResultChars] = useState<string[]>([]);
   const [feedbackChars, setFeedbackChars] = useState<string[]>([]);
   const { openModal } = useModal();
+  const sseConnectionRef = useRef<{ close: () => void } | null>(null);
 
   const subscriptionId = searchParams.get('subscriptionId');
   const quizId = searchParams.get('quizId');
+
+  // SSE 연결 정리 - 컴포넌트 언마운트 시
+  useEffect(() => {
+    return () => {
+      if (sseConnectionRef.current) {
+        sseConnectionRef.current.close();
+        sseConnectionRef.current = null;
+      }
+    };
+  }, []);
 
   // 결과 텍스트를 글자별로 분리하고 애니메이션 적용
   React.useEffect(() => {
@@ -286,7 +297,13 @@ const TodayQuizSection: React.FC = () => {
             setResultChars([]);
             setFeedbackChars([]);
             
-            quizAPI.streamAiFeedback(
+            // 기존 연결이 있다면 먼저 정리
+            if (sseConnectionRef.current) {
+              sseConnectionRef.current.close();
+              sseConnectionRef.current = null;
+            }
+
+            const sseConnection = quizAPI.streamAiFeedback(
               answerId,
               // onData: 스트리밍 데이터 수신
               (data: string) => {
@@ -363,7 +380,8 @@ const TodayQuizSection: React.FC = () => {
               }
             );
             
-            // SSE 연결은 자동으로 완료되거나 에러 시 닫힘
+            // SSE 연결을 ref에 저장하여 나중에 정리할 수 있도록 함
+            sseConnectionRef.current = sseConnection;
           } catch (feedbackError) {
             console.error('AI 피드백 요청 실패:', feedbackError);
             
