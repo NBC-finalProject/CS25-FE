@@ -101,7 +101,7 @@ const QuizSection: React.FC = () => {
       <Container>
         <div className="text-center max-w-3xl mx-auto mb-12">
           <div className="inline-flex items-center bg-brand-100 rounded-full px-6 py-2 mb-8">
-            <span className="text-sm font-medium text-brand-700">📚 오늘의 CS 문제</span>
+            <span className="text-sm font-medium text-brand-700">오늘의 CS 문제</span>
           </div>
           
           <h2 className="text-3xl md:text-4xl font-bold mb-6 text-gray-900">

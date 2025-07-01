@@ -293,11 +293,44 @@ const TodayQuizSection: React.FC = () => {
           const duplicateResult: AnswerResult = {
             isCorrect: (responseData as any)?.correct || false,
             answer: (responseData as any)?.answer || displayQuiz.answer || '',
-            commentary: (responseData as any)?.commentary || displayQuiz.commentary
+            commentary: (responseData as any)?.commentary || displayQuiz.commentary,
+            aiFeedback: (responseData as any)?.aiFeedback
           };
           
           setAnswerResult(duplicateResult);
           setIsSubmitted(true);
+          
+          // 서술형 문제이고 aiFeedback이 있는 경우 파싱해서 표시
+          if (displayQuiz.quizType === 'SUBJECTIVE' && duplicateResult.aiFeedback) {
+            const feedback = duplicateResult.aiFeedback;
+            
+            // '정답:' 또는 '오답:' 부분과 '피드백:' 부분 파싱
+            if (feedback.includes('정답:') || feedback.includes('오답:')) {
+              // 정답/오답 여부 설정
+              if (feedback.includes('정답:')) {
+                setIsCorrectFromAI(true);
+              } else if (feedback.includes('오답:')) {
+                setIsCorrectFromAI(false);
+              }
+              
+              // 피드백 구분자 찾기
+              const feedbackIndex = feedback.indexOf('피드백:');
+              
+              if (feedbackIndex === -1) {
+                // 피드백 부분이 없음 - 결과 부분만
+                const resultText = feedback.replace(/^(정답:|오답:)\s*/, '').trim();
+                setFeedbackResult(resultText);
+              } else {
+                // 피드백 부분이 있음 - 결과와 피드백 분리
+                const resultPart = feedback.substring(0, feedbackIndex).replace(/^(정답:|오답:)\s*/, '').trim();
+                const feedbackPart = feedback.substring(feedbackIndex + 3).trim(); // '피드백:' 이후
+                
+                setFeedbackResult(resultPart);
+                setFeedbackContent(feedbackPart);
+              }
+            }
+            setIsStreamingComplete(true);
+          }
           
           // 중복 답변인 경우 이전 선택한 답안 복원 (객관식만)
           if (displayQuiz.quizType === 'MULTIPLE_CHOICE') {
@@ -621,7 +654,7 @@ const TodayQuizSection: React.FC = () => {
       <Container>
         <div className="text-center max-w-3xl mx-auto mb-12">
           <div className="inline-flex items-center bg-brand-100 rounded-full px-6 py-2 mb-8">
-            <span className="text-sm font-medium text-brand-700">📚 오늘의 CS 문제</span>
+            <span className="text-sm font-medium text-brand-700">오늘의 CS 문제</span>
           </div>
           
           <h2 className="text-3xl md:text-4xl font-bold mb-6 text-gray-900">
@@ -845,19 +878,6 @@ const TodayQuizSection: React.FC = () => {
                           </div>
                         ) : (
                           <div>
-                            {/* 정답/오답 결과 배지 */}
-                            {isCorrectFromAI !== null && (
-                              <div className={`inline-flex items-center rounded-full px-4 py-2 mb-3 animate-reveal-down ${
-                                isCorrectFromAI ? 'bg-green-100' : 'bg-red-100'
-                              }`}>
-                                <span className={`text-sm font-bold animate-text-reveal-up ${
-                                  isCorrectFromAI ? 'text-green-700' : 'text-red-700'
-                                }`}>
-                                  {isCorrectFromAI ? '🎉 정답입니다!' : '❌ 틀렸습니다!'}
-                                </span>
-                              </div>
-                            )}
-                            
                             {/* 결과 설명 */}
                             {resultChars.length > 0 && (
                               <div className={`p-3 rounded-lg mb-3 animate-reveal-up ${
