@@ -44,7 +44,7 @@
 ## 시작하기
 
 ### **Prerequisites**
-- Node.js 18.0 이상
+- Node.js 20.0 이상
 - npm 또는 yarn
 - Docker (선택사항)
 
@@ -52,7 +52,7 @@
 
 ```bash
 # 저장소 클론
-git clone https://github.com/NBC-finalProject/cs25-fronted.git
+git clone https://github.com/NBC-finalProject/CS25-FE.git
 cd cs25-fronted
 
 # 의존성 설치
