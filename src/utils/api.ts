@@ -115,10 +115,10 @@ export const quizAPI = {
   },
 
   // 퀴즈 답안 제출
-  submitQuizAnswer: async (quizId: string, answer: number) => {
+  submitQuizAnswer: async (quizId: string, answer: number | string) => {
     return apiRequest('/quiz/submit', {
       method: 'POST',
-      body: JSON.stringify({ quizId, answer }),
+      body: JSON.stringify({ quizId, answer: answer.toString() }),
     });
   },
 

@@ -38,7 +38,7 @@ export const useSubmitQuizAnswer = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ quizId, answer }: { quizId: string; answer: number }) => 
+    mutationFn: ({ quizId, answer }: { quizId: string; answer: number | string }) => 
       quizAPI.submitQuizAnswer(quizId, answer),
     onSuccess: () => {
       // 제출 후 히스토리 캐시 무효화

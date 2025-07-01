@@ -240,7 +240,15 @@ const TodayQuizSection: React.FC = () => {
     if (quizId && subscriptionId && displayQuiz) {
       try {
         // API로 답안 제출 (기록용)
-        const submitAnswer = displayQuiz.quizType === 'MULTIPLE_CHOICE' ? selectedAnswer! : subjectiveAnswer;
+        let submitAnswer: string;
+        if (displayQuiz.quizType === 'MULTIPLE_CHOICE') {
+          // 객관식: 선택한 옵션의 전체 텍스트를 전달
+          const selectedChoiceKey = `choice${selectedAnswer}` as keyof QuizData;
+          const selectedChoiceText = displayQuiz[selectedChoiceKey] as string;
+          submitAnswer = selectedChoiceText || `${selectedAnswer}번`;
+        } else {
+          submitAnswer = subjectiveAnswer;
+        }
         const submitResponse = await quizAPI.submitTodayQuizAnswer(quizId, submitAnswer, subscriptionId);
         
         // submitResponse에서 userQuizAnswerId 추출 (모든 타입에서 공통)
