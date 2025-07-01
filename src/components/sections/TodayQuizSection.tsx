@@ -218,8 +218,9 @@ const TodayQuizSection: React.FC = () => {
       return;
     }
 
-    // 주관식인 경우 답안 확인
-    if (displayQuiz?.quizType === 'SUBJECTIVE' && subjectiveAnswer.trim() === '') {
+    // 서술형인 경우 답안 확인 FIXME: 주관식은 일단 제외)
+    // if ((displayQuiz?.quizType === 'SHORT_ANSWER' || displayQuiz?.quizType === 'SUBJECTIVE') && subjectiveAnswer.trim() === '') {
+    if ((displayQuiz?.quizType === 'SHORT_ANSWER' || displayQuiz?.quizType === 'SUBJECTIVE') && subjectiveAnswer.trim() === '') {  
       openModal({
         title: '답안 입력 필요',
         content: (
@@ -290,17 +291,43 @@ const TodayQuizSection: React.FC = () => {
           
           setAnswerResult(result);
           setIsSubmitted(true);
-        } else if (displayQuiz.quizType === 'SUBJECTIVE') {
-          // 주관식: AI 피드백 없음, 단순 결과 표시
-          const result: AnswerResult = {
-            isCorrect: true, // 주관식은 정답/오답 구분 없음
-            answer: displayQuiz.answer || '',
-            commentary: displayQuiz.commentary
-          };
-          
-          setAnswerResult(result);
+        } else if (displayQuiz.quizType === 'SHORT_ANSWER') {
+          // 주관식: 평가 API 호출하여 정답/오답 확인
           setIsSubmitted(true);
-        } else if (displayQuiz.quizType === 'ESSAY') {
+          
+          try {
+            // 평가 API 호출하여 정답/오답 결과 받기
+            const evaluateResponse = await quizAPI.evaluateQuizAnswer(userQuizAnswerId);
+            
+            // 평가 응답에서 결과 추출
+            let evaluateData;
+            if (evaluateResponse && typeof evaluateResponse === 'object') {
+              evaluateData = ('data' in evaluateResponse) ? evaluateResponse.data : evaluateResponse;
+            } else {
+              evaluateData = evaluateResponse;
+            }
+            
+            // 평가 결과로 결과 설정
+            const result: AnswerResult = {
+              isCorrect: (evaluateData as any)?.isCorrect || false,
+              answer: (evaluateData as any)?.answer || displayQuiz.answer || '',
+              commentary: (evaluateData as any)?.commentary || displayQuiz.commentary
+            };
+            
+            setAnswerResult(result);
+          } catch (evaluateError) {
+            console.error('주관식 답안 평가 실패:', evaluateError);
+            
+            // 평가 API 실패 시 기본값으로 처리
+            const fallbackResult: AnswerResult = {
+              isCorrect: false,
+              answer: displayQuiz.answer || '',
+              commentary: displayQuiz.commentary
+            };
+            
+            setAnswerResult(fallbackResult);
+          }
+        } else if (displayQuiz.quizType === 'SUBJECTIVE') {
           // 서술형: AI 피드백 있음
           // 먼저 기본 결과 표시 (AI 피드백 없이)
           const initialResult: AnswerResult = {
@@ -314,7 +341,6 @@ const TodayQuizSection: React.FC = () => {
           setIsAiFeedbackLoading(true);
           setStreamingFeedback('AI 응답 대기 중...');
           
-          // userQuizAnswerId는 이미 위에서 추출했으므로 그대로 사용
           
           try {
             // SSE를 통한 AI 피드백 스트리밍
@@ -333,9 +359,9 @@ const TodayQuizSection: React.FC = () => {
             }
 
             const sseConnection = quizAPI.streamAiFeedback(
-              userQuizAnswerId,
-              // onData: 스트리밍 데이터 수신
-              (data: string) => {
+                userQuizAnswerId,
+                // onData: 스트리밍 데이터 수신
+                (data: string) => {
                 // 받은 데이터 로깅 (디버깅용)
                 console.log('받은 SSE 데이터:', JSON.stringify(data));
                 
@@ -465,7 +491,7 @@ const TodayQuizSection: React.FC = () => {
           const cleanAnswerText = choiceText ? choiceText.replace(/^\d+\.\s*/, '') : '';
           answerText = `${correctAnswerNumber}번. ${cleanAnswerText}`;
         } else {
-          // 주관식의 경우
+          // 주관식/단답형의 경우
           isCorrect = subjectiveAnswer.trim().toLowerCase() === (displayQuiz.answer || '').toLowerCase();
           answerText = displayQuiz.answer || '';
         }
@@ -649,6 +675,30 @@ const TodayQuizSection: React.FC = () => {
               )}
 
               {/* 주관식 문제 */}
+              {displayQuiz?.quizType === 'SHORT_ANSWER' && (
+                <div className="max-w-4xl mx-auto mb-8">
+                  <div className="bg-white rounded-xl sm:rounded-2xl border-2 border-gray-200 p-4 sm:p-6">
+                    <label htmlFor="short-answer" className="block text-base sm:text-lg font-medium text-gray-900 mb-4">
+                      답안을 입력해주세요
+                    </label>
+                    <input
+                      type="text"
+                      id="short-answer"
+                      value={subjectiveAnswer}
+                      onChange={(e) => setSubjectiveAnswer(e.target.value)}
+                      disabled={isSubmitted}
+                      className={`w-full p-3 sm:p-4 border-2 rounded-lg sm:rounded-xl text-base sm:text-lg leading-relaxed transition-all duration-300 ${
+                        isSubmitted 
+                          ? 'border-gray-200 bg-gray-50 text-gray-600 cursor-not-allowed'
+                          : 'border-gray-300 focus:border-brand-500 focus:ring-4 focus:ring-brand-100 focus:outline-none'
+                      }`}
+                      placeholder="짧은 답안을 입력하세요..."
+                    />
+                  </div>
+                </div>
+              )}
+
+              {/* 서술형 문제 */}
               {displayQuiz?.quizType === 'SUBJECTIVE' && (
                 <div className="max-w-4xl mx-auto mb-8">
                   <div className="bg-white rounded-xl sm:rounded-2xl border-2 border-gray-200 p-4 sm:p-6">
@@ -675,8 +725,8 @@ const TodayQuizSection: React.FC = () => {
               {/* Result Section - 제출 후에만 표시 */}
               {isSubmitted && answerResult && (
                 <div className="max-w-4xl mx-auto mb-8">
-                  {/* 정답/오답 메시지 - 객관식에만 표시 */}
-                  {displayQuiz?.quizType === 'MULTIPLE_CHOICE' && (
+                  {/* 정답/오답 메시지 - 객관식, 주관식에 표시 FIXME: 주관식은 일단 제외)*/}
+                  {(displayQuiz?.quizType === 'MULTIPLE_CHOICE') && (
                     <div className={`inline-flex items-center rounded-full px-6 py-3 mb-6 ${
                       answerResult.isCorrect ? 'bg-green-100' : 'bg-red-100'
                     }`}>
@@ -701,8 +751,8 @@ const TodayQuizSection: React.FC = () => {
                       </div>
                     )}
                     
-                    {/* 모범답안 표시 (주관식과 서술형) */}
-                    {(displayQuiz?.quizType === 'SUBJECTIVE' || displayQuiz?.quizType === 'ESSAY') && (
+                    {/* 모범답안 표시 (주관식, 서술형) */}
+                    {(displayQuiz?.quizType === 'SHORT_ANSWER' || displayQuiz?.quizType === 'SUBJECTIVE') && (
                       <div className="p-4 bg-green-50 rounded-xl mb-6">
                         <h4 className="text-lg font-bold text-gray-900 mb-2">모범답안</h4>
                         <p className="text-green-800 font-medium leading-relaxed">
@@ -712,7 +762,7 @@ const TodayQuizSection: React.FC = () => {
                     )}
 
                     {/* AI 피드백 표시 (서술형만) */}
-                    {displayQuiz?.quizType === 'ESSAY' && (
+                    {displayQuiz?.quizType === 'SUBJECTIVE' && (
                       <div className="p-4 bg-blue-50 rounded-xl mb-6">
                         <h4 className="text-lg font-bold text-gray-900 mb-2">AI 피드백</h4>
                         {(isAiFeedbackLoading && !feedbackResult) || (feedbackResult && resultChars.length === 0) ? (
