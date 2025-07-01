@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useUserProfile, useUserWrongQuiz, useUserCorrectRate } from '../../hooks';
+import { getMainCategoryLabel, getSubCategoryLabel } from '../../utils/categoryUtils';
 import Container from '../common/Container';
 import Section from '../common/Section';
 
@@ -406,7 +407,7 @@ const ProfileSection: React.FC = () => {
                             return (
                               <div key={category} className="space-y-2">
                                 <div className="flex justify-between items-center">
-                                  <span className="font-medium text-gray-900">{category}</span>
+                                  <span className="font-medium text-gray-900">{getSubCategoryLabel(category) || category}</span>
                                   <span className="text-sm font-medium text-brand-600">{rateNum.toFixed(1)}%</span>
                                 </div>
                                 <div className="w-full bg-gray-200 rounded-full h-3">

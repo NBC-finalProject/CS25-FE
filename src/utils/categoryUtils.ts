@@ -14,16 +14,16 @@ export const getMainCategoryLabel = (category: string): string => {
 };
 
 export const getSubCategoryLabel = (category: string): string => {
-  switch (category) {
-    case 'SoftwareDevelopment':
+  switch (category.toUpperCase()) {
+    case 'SOFTWAREDEVELOPMENT':
       return '소프트웨어 개발';
-    case 'SoftwareDesign':
+    case 'SOFTWAREDESIGN':
       return '소프트웨어 설계';
-    case 'Programming':
+    case 'PROGRAMMING':
       return '프로그래밍';
-    case 'Database':
+    case 'DATABASE':
       return '데이터베이스';
-    case 'InformationSystemManagement':
+    case 'INFORMATIONSYSTEMMANAGEMENT':
       return '정보시스템 관리';
     default:
       return category;
