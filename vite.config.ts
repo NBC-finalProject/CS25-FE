@@ -6,13 +6,13 @@ export default defineConfig({
   plugins: [react()],
   server: {
     open: true,
-    proxy: {
-      '/api': {
-        target: process.env.VITE_API_URL || 'http://localhost:5172',
-        changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/api/, '')
-      }
-    }
+    // proxy: {
+    //   '/api': {
+    //     target: process.env.VITE_API_URL || 'http://localhost:5172',
+    //     changeOrigin: true,
+    //     rewrite: (path) => path.replace(/^\/api/, '')
+    //   }
+    // }
   },
   build: {
     outDir: 'build'
