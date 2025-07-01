@@ -3,7 +3,7 @@ import apiClient from './axiosConfig';
 import { AxiosResponse } from 'axios';
 
 const { NODE_ENV } = import.meta.env;
-const apiUrl = NODE_ENV === 'prod' ? 'https://cs25.co.kr' : 'http://localhost:8080';
+const apiUrl = NODE_ENV === 'prod' ? 'https://cs25.co.kr/api' : 'http://localhost:8080';
 
 // Axios wrapper for consistency with existing code
 async function apiRequest<T>(
