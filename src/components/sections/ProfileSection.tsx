@@ -15,6 +15,7 @@ interface WrongQuizDto {
 const ProfileSection: React.FC = () => {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<'overview' | 'wrong-quiz' | 'correct-rate'>('overview');
+  const [expandedQuizzes, setExpandedQuizzes] = useState<Set<number>>(new Set());
 
   // 사용자 프로필 조회
   const { data: profile, isLoading: profileLoading } = useUserProfile();
@@ -24,6 +25,17 @@ const ProfileSection: React.FC = () => {
 
   // 카테고리별 정답률 조회
   const { data: correctRateData, isLoading: correctRateLoading } = useUserCorrectRate(activeTab === 'correct-rate');
+
+  // 토글 함수
+  const toggleQuiz = (index: number) => {
+    const newExpanded = new Set(expandedQuizzes);
+    if (newExpanded.has(index)) {
+      newExpanded.delete(index);
+    } else {
+      newExpanded.add(index);
+    }
+    setExpandedQuizzes(newExpanded);
+  };
 
   // 구독 수정 페이지로 이동
   const handleEditSubscription = () => {
@@ -271,54 +283,98 @@ const ProfileSection: React.FC = () => {
 
               {/* 내가 틀린 푼 문제 보기 탭 */}
               {activeTab === 'wrong-quiz' && (
-                <div className="space-y-4 sm:space-y-6">
-                  <h3 className="text-lg sm:text-xl font-bold text-gray-900">틀린 문제 보기</h3>
+                <div className="space-y-4">
+                  <h3 className="text-lg sm:text-xl font-bold text-gray-900 text-left">틀린 문제 보기</h3>
                   
                   {wrongQuizLoading ? (
-                    <div className="text-center py-6 sm:py-8">
-                      <div className="animate-spin rounded-full h-6 w-6 sm:h-8 sm:w-8 border-b-2 border-brand-500 mx-auto"></div>
-                      <p className="mt-3 sm:mt-4 text-sm sm:text-base text-gray-600">틀린 문제를 불러오는 중...</p>
+                    <div className="text-center py-8">
+                      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-brand-500 mx-auto"></div>
+                      <p className="mt-4 text-gray-600">틀린 문제를 불러오는 중...</p>
                     </div>
                   ) : wrongQuizData && wrongQuizData.wrongQuizList && wrongQuizData.wrongQuizList.length > 0 ? (
-                    <div className="space-y-4">
-                      {wrongQuizData.wrongQuizList.map((quiz: WrongQuizDto, index: number) => (
-                        <div key={index} className="bg-red-50 rounded-xl p-6 border border-red-100">
-                          <h4 className="font-medium text-gray-900 mb-4 text-lg">
-                            {quiz.question}
-                          </h4>
-                          
-                          <div className="space-y-3">
-                            <div className="flex items-start gap-3">
-                              <span className="text-red-600 font-medium min-w-0">내 답안:</span>
-                              <span className="text-red-700 bg-red-100 px-3 py-1 rounded-lg">
-                                {quiz.userAnswer}
-                              </span>
-                            </div>
-                            
-                            <div className="flex items-start gap-3">
-                              <span className="text-green-600 font-medium min-w-0">정답:</span>
-                              <span className="text-green-700 bg-green-100 px-3 py-1 rounded-lg">
-                                {quiz.answer}
-                              </span>
-                            </div>
-                            
-                            {quiz.commentary && (
-                              <div className="mt-4 p-4 bg-blue-50 rounded-lg border border-blue-100">
-                                <div className="flex items-start gap-2">
-                                  <span className="text-blue-600 font-medium">💡 해설:</span>
-                                  <p className="text-blue-700 leading-relaxed">
-                                    {quiz.commentary}
-                                  </p>
+                    <div className="space-y-3">
+                      {wrongQuizData.wrongQuizList.map((quiz: WrongQuizDto, index: number) => {
+                        const isExpanded = expandedQuizzes.has(index);
+                        return (
+                          <div key={index} className="border border-gray-200 rounded-lg bg-white overflow-hidden">
+                            {/* 토글 헤더 */}
+                            <button
+                              onClick={() => toggleQuiz(index)}
+                              className="w-full px-3 py-3 sm:px-4 sm:py-4 flex items-center justify-between hover:bg-gray-50 transition-all duration-300 ease-in-out hover:shadow-sm"
+                            >
+                              <div className="flex items-center gap-2 sm:gap-3 flex-1 min-w-0">
+                                <div className="w-5 h-5 sm:w-6 sm:h-6 bg-red-100 text-red-600 rounded-full flex items-center justify-center text-xs sm:text-sm font-medium flex-shrink-0">
+                                  {index + 1}
                                 </div>
+                                <span className="text-left text-gray-900 font-medium text-sm sm:text-base truncate">
+                                  {quiz.question}
+                                </span>
                               </div>
-                            )}
+                              <svg 
+                                className={`w-4 h-4 sm:w-5 sm:h-5 text-gray-400 transition-all duration-500 ease-in-out flex-shrink-0 ml-2 ${isExpanded ? 'rotate-180 text-brand-500' : 'rotate-0'}`}
+                                fill="none" 
+                                stroke="currentColor" 
+                                viewBox="0 0 24 24"
+                              >
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                              </svg>
+                            </button>
+
+                            {/* 토글 콘텐츠 */}
+                            <div className={`overflow-hidden transition-all duration-500 ease-in-out ${
+                              isExpanded ? 'max-h-[1000px] opacity-100' : 'max-h-0 opacity-0'
+                            }`}>
+                              <div className={`px-3 pb-3 sm:px-4 sm:pb-4 border-t border-gray-100 transform transition-all duration-300 ${
+                                isExpanded ? 'translate-y-0 scale-100' : '-translate-y-2 scale-95'
+                              }`}>
+                                  <div className="space-y-3 sm:space-y-4 pt-3 sm:pt-4">
+                                  {/* 모바일에서만 질문 표시 */}
+                                  <div className="block sm:hidden">
+                                    <div className="flex flex-col gap-1 text-left">
+                                      <span className="text-sm font-bold text-brand-600">문제:</span>
+                                      <p className="text-sm text-gray-900 font-semibold leading-relaxed break-words text-left">
+                                        {quiz.question}
+                                      </p>
+                                    </div>
+                                  </div>
+                                  
+                                  {/* 내 답안 */}
+                                  <div className="flex flex-col sm:flex-row sm:items-start gap-1 sm:gap-3 text-left">
+                                    <span className="text-sm sm:text-base font-bold text-brand-600 min-w-fit text-left">내 답안:</span>
+                                    <span className="text-sm sm:text-base text-gray-900 font-semibold break-words text-left">
+                                      {quiz.userAnswer?.replace(/\.(?=\S)/g, '. ')}
+                                    </span>
+                                  </div>
+                                  
+                                  {/* 정답 */}
+                                  <div className="flex flex-col sm:flex-row sm:items-start gap-1 sm:gap-3 text-left">
+                                    <span className="text-sm sm:text-base font-bold text-brand-600 min-w-fit text-left">정답:</span>
+                                    <span className="text-sm sm:text-base text-gray-900 font-semibold break-words text-left">
+                                      {quiz.answer?.replace(/\.(?=\S)/g, '. ')}
+                                    </span>
+                                  </div>
+                                  
+                                  {/* 해설 */}
+                                  {quiz.commentary && (
+                                    <div className="mt-3 sm:mt-4 pt-3 sm:pt-4 border-t border-gray-200 text-left">
+                                      <div className="flex flex-col sm:flex-row sm:items-start gap-1 sm:gap-3 text-left">
+                                        <span className="text-sm sm:text-base font-bold text-brand-600 min-w-fit text-left">해설:</span>
+                                        <p className="text-sm sm:text-base text-gray-700 leading-relaxed font-medium break-words text-left">
+                                          {quiz.commentary}
+                                        </p>
+                                      </div>
+                                    </div>
+                                  )}
+                                  </div>
+                                </div>
+                            </div>
                           </div>
-                        </div>
-                      ))}
+                        );
+                      })}
                     </div>
                   ) : (
-                    <div className="text-center py-12">
-                      <div className="w-16 h-16 bg-gradient-to-r from-green-400 to-emerald-400 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <div className="text-center sm:text-left py-12">
+                      <div className="w-16 h-16 bg-gradient-to-r from-green-400 to-emerald-400 rounded-full flex items-center justify-center mx-auto sm:mx-0 mb-4">
                         <svg className="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 20 20">
                           <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                         </svg>
