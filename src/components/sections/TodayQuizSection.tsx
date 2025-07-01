@@ -243,6 +243,29 @@ const TodayQuizSection: React.FC = () => {
         const submitAnswer = displayQuiz.quizType === 'MULTIPLE_CHOICE' ? selectedAnswer! : subjectiveAnswer;
         const submitResponse = await quizAPI.submitTodayQuizAnswer(quizId, submitAnswer, subscriptionId);
         
+        // submitResponse에서 userQuizAnswerId 추출 (모든 타입에서 공통)
+        let userQuizAnswerId: string;
+        
+        if (submitResponse && typeof submitResponse === 'object') {
+          if ('data' in submitResponse && submitResponse.data) {
+            userQuizAnswerId = (submitResponse.data as any).toString();
+          } else if ('userQuizAnswerId' in submitResponse) {
+            userQuizAnswerId = (submitResponse as any).userQuizAnswerId.toString();
+          } else {
+            userQuizAnswerId = (submitResponse as any).toString();
+          }
+        } else {
+          userQuizAnswerId = (submitResponse as any).toString();
+        }
+
+        // 모든 타입에서 평가 API 호출
+        try {
+          await quizAPI.evaluateQuizAnswer(userQuizAnswerId);
+        } catch (evaluateError) {
+          console.error('답안 평가 요청 실패:', evaluateError);
+          // 평가 API 실패해도 계속 진행
+        }
+        
         if (displayQuiz.quizType === 'MULTIPLE_CHOICE') {
           // 객관식: 클라이언트에서 정답 검증
           const correctAnswerNumber = parseInt(displayQuiz.answerNumber || '1');
@@ -259,7 +282,18 @@ const TodayQuizSection: React.FC = () => {
           
           setAnswerResult(result);
           setIsSubmitted(true);
-        } else {
+        } else if (displayQuiz.quizType === 'SUBJECTIVE') {
+          // 주관식: AI 피드백 없음, 단순 결과 표시
+          const result: AnswerResult = {
+            isCorrect: true, // 주관식은 정답/오답 구분 없음
+            answer: displayQuiz.answer || '',
+            commentary: displayQuiz.commentary
+          };
+          
+          setAnswerResult(result);
+          setIsSubmitted(true);
+        } else if (displayQuiz.quizType === 'ESSAY') {
+          // 서술형: AI 피드백 있음
           // 먼저 기본 결과 표시 (AI 피드백 없이)
           const initialResult: AnswerResult = {
             isCorrect: false, // 일단 false로 설정, AI 피드백에서 업데이트
@@ -272,20 +306,7 @@ const TodayQuizSection: React.FC = () => {
           setIsAiFeedbackLoading(true);
           setStreamingFeedback('AI 응답 대기 중...');
           
-          let answerId: string;
-          
-          // API 응답에서 answerId 추출
-          if (submitResponse && typeof submitResponse === 'object') {
-            if ('data' in submitResponse && submitResponse.data) {
-              answerId = (submitResponse.data as any).toString();
-            } else if ('answerId' in submitResponse) {
-              answerId = (submitResponse as any).answerId.toString();
-            } else {
-              answerId = (submitResponse as any).toString();
-            }
-          } else {
-            answerId = (submitResponse as any).toString();
-          }
+          // userQuizAnswerId는 이미 위에서 추출했으므로 그대로 사용
           
           try {
             // SSE를 통한 AI 피드백 스트리밍
@@ -304,7 +325,7 @@ const TodayQuizSection: React.FC = () => {
             }
 
             const sseConnection = quizAPI.streamAiFeedback(
-              answerId,
+              userQuizAnswerId,
               // onData: 스트리밍 데이터 수신
               (data: string) => {
                 // 받은 데이터 로깅 (디버깅용)
@@ -672,8 +693,8 @@ const TodayQuizSection: React.FC = () => {
                       </div>
                     )}
                     
-                    {/* 모범답안 표시 (주관식만) */}
-                    {displayQuiz?.quizType === 'SUBJECTIVE' && (
+                    {/* 모범답안 표시 (주관식과 서술형) */}
+                    {(displayQuiz?.quizType === 'SUBJECTIVE' || displayQuiz?.quizType === 'ESSAY') && (
                       <div className="p-4 bg-green-50 rounded-xl mb-6">
                         <h4 className="text-lg font-bold text-gray-900 mb-2">모범답안</h4>
                         <p className="text-green-800 font-medium leading-relaxed">
@@ -682,8 +703,8 @@ const TodayQuizSection: React.FC = () => {
                       </div>
                     )}
 
-                    {/* AI 피드백 표시 (주관식만) */}
-                    {displayQuiz?.quizType === 'SUBJECTIVE' && (
+                    {/* AI 피드백 표시 (서술형만) */}
+                    {displayQuiz?.quizType === 'ESSAY' && (
                       <div className="p-4 bg-blue-50 rounded-xl mb-6">
                         <h4 className="text-lg font-bold text-gray-900 mb-2">AI 피드백</h4>
                         {(isAiFeedbackLoading && !feedbackResult) || (feedbackResult && resultChars.length === 0) ? (

@@ -154,6 +154,13 @@ export const quizAPI = {
     });
   },
 
+  // 퀴즈 답안 평가 요청 (주관식)
+  evaluateQuizAnswer: async (userQuizAnswerId: string) => {
+    return apiRequest(`/quizzes/evaluate/${userQuizAnswerId}`, {
+      method: 'POST'
+    });
+  },
+
   // AI 피드백 SSE 스트리밍 (주관식)
   streamAiFeedback: (answerId: string, onData: (data: string) => void, onComplete: () => void, onError: (error: Event) => void) => {
     let isCompleted = false;

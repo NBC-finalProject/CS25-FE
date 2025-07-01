@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import Container from '../common/Container';
 import Section from '../common/Section';
 import QuizComponent from '../common/QuizComponent';
-import { useTodayQuiz, useSubmitQuizAnswer } from '../../hooks';
 
 interface QuizData {
   id: string;
