@@ -75,6 +75,7 @@ const TodayQuizSection: React.FC = () => {
   const [isCorrectFromAI, setIsCorrectFromAI] = useState<boolean | null>(null);
   const [resultChars, setResultChars] = useState<string[]>([]);
   const [feedbackChars, setFeedbackChars] = useState<string[]>([]);
+  const [isDuplicateAnswer, setIsDuplicateAnswer] = useState<boolean>(false);
   const { openModal } = useModal();
   const sseConnectionRef = useRef<{ close: () => void } | null>(null);
 
@@ -137,11 +138,18 @@ const TodayQuizSection: React.FC = () => {
       const timer = setTimeout(() => {
         const newPercentages: {[key: number]: number} = {};
         [1, 2, 3, 4].forEach(choice => {
-          // 사용자의 선택을 포함한 새로운 비율 계산
           const originalRate = selectionRates.selectionRates[choice.toString()] || 0;
           const originalCount = Math.round(originalRate * selectionRates.totalCount);
-          const newCount = selectedAnswer === choice ? originalCount + 1 : originalCount;
-          const newTotalCount = selectionRates.totalCount + 1;
+          
+          // 중복 답변이 아닌 경우에만 새로운 선택을 카운트에 추가
+          let newCount = originalCount;
+          let newTotalCount = selectionRates.totalCount;
+          
+          if (!isDuplicateAnswer) {
+            newCount = selectedAnswer === choice ? originalCount + 1 : originalCount;
+            newTotalCount = selectionRates.totalCount + 1;
+          }
+          
           const newRate = newCount / newTotalCount;
           newPercentages[choice] = Math.round(newRate * 100);
         });
@@ -150,7 +158,7 @@ const TodayQuizSection: React.FC = () => {
 
       return () => clearTimeout(timer);
     }
-  }, [isSubmitted, selectionRates, selectedAnswer]);
+  }, [isSubmitted, selectionRates, selectedAnswer, isDuplicateAnswer]);
 
   const { data: question, isLoading } = useQuery({
     queryKey: ['todayQuiz', subscriptionId, quizId],
@@ -252,51 +260,80 @@ const TodayQuizSection: React.FC = () => {
         }
         const submitResponse = await quizAPI.submitTodayQuizAnswer(quizId, submitAnswer, subscriptionId);
         
-        // submitResponse에서 userQuizAnswerId 추출 (모든 타입에서 공통)
-        let userQuizAnswerId: string;
-        
+        // 응답에서 UserQuizAnswerResponseDto 추출
+        let responseData;
         if (submitResponse && typeof submitResponse === 'object') {
-          if ('data' in submitResponse && submitResponse.data) {
-            userQuizAnswerId = (submitResponse.data as any).toString();
-          } else if ('userQuizAnswerId' in submitResponse) {
-            userQuizAnswerId = (submitResponse as any).userQuizAnswerId.toString();
-          } else {
-            userQuizAnswerId = (submitResponse as any).toString();
-          }
+          responseData = ('data' in submitResponse) ? submitResponse.data : submitResponse;
         } else {
-          userQuizAnswerId = (submitResponse as any).toString();
+          responseData = submitResponse;
         }
 
-        // 모든 타입에서 평가 API 호출
-        try {
-          await quizAPI.evaluateQuizAnswer(userQuizAnswerId);
-        } catch (evaluateError) {
-          console.error('답안 평가 요청 실패:', evaluateError);
-          // 평가 API 실패해도 계속 진행
-        }
-        
-        if (displayQuiz.quizType === 'MULTIPLE_CHOICE') {
-          // 객관식: 클라이언트에서 정답 검증
-          const correctAnswerNumber = parseInt(displayQuiz.answerNumber || '1');
-          const isCorrect = selectedAnswer === correctAnswerNumber;
-          const choiceText = displayQuiz[`choice${correctAnswerNumber}` as keyof QuizData] as string;
-          const cleanAnswerText = choiceText ? choiceText.replace(/^\d+\.\s*/, '') : '';
-          const answerText = `${correctAnswerNumber}번. ${cleanAnswerText}`;
+        // 중복 답변 체크
+        if ((responseData as any)?.duplicated) {
+          // 중복 답변 상태 설정
+          setIsDuplicateAnswer(true);
           
-          const result: AnswerResult = {
-            isCorrect,
-            answer: answerText,
-            commentary: displayQuiz.commentary
+          // 중복 답변인 경우 모달 표시하고 기존 답안 결과 보여주기
+          openModal({
+            title: '이미 답변한 문제입니다',
+            content: (
+              <div className="text-center py-4">
+                <div className="w-16 h-16 mx-auto mb-4 bg-blue-100 rounded-full flex items-center justify-center">
+                  <svg className="w-8 h-8 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                </div>
+                <p className="text-gray-700 text-lg mb-4">이전에 답변한 내용을 확인해보세요!</p>
+              </div>
+            ),
+            size: 'sm'
+          });
+          
+          // 중복 답변인 경우 기존 답안 결과 표시
+          const duplicateResult: AnswerResult = {
+            isCorrect: (responseData as any)?.correct || false,
+            answer: (responseData as any)?.answer || displayQuiz.answer || '',
+            commentary: (responseData as any)?.commentary || displayQuiz.commentary
           };
           
-          setAnswerResult(result);
-          setIsSubmitted(true);
-        } else if (displayQuiz.quizType === 'SHORT_ANSWER') {
-          // 주관식: 평가 API 호출하여 정답/오답 확인
+          setAnswerResult(duplicateResult);
           setIsSubmitted(true);
           
+          // 중복 답변인 경우 이전 선택한 답안 복원 (객관식만)
+          if (displayQuiz.quizType === 'MULTIPLE_CHOICE') {
+            const userAnswer = (responseData as any)?.userAnswer;
+            if (userAnswer) {
+              // userAnswer에서 선택 번호 추출 (예: "1. text" -> 1)
+              const answerMatch = userAnswer.match(/^(\d+)/);
+              if (answerMatch) {
+                setSelectedAnswer(parseInt(answerMatch[1]));
+              }
+            }
+            
+            // 선택 비율 가져오기
+            if (quizId) {
+              try {
+                const ratesResponse = await quizAPI.getQuizSelectionRates(quizId);
+                if (ratesResponse && typeof ratesResponse === 'object') {
+                  const ratesData = ('data' in ratesResponse) ? ratesResponse.data : ratesResponse;
+                  setSelectionRates(ratesData as SelectionRatesData);
+                }
+              } catch (error) {
+                console.error('중복 답변 - 선택 비율 데이터 가져오기 실패:', error);
+              }
+            }
+          }
+          
+          return; // 여기서 중단
+        }
+        
+        // responseData에서 userQuizAnswerId 추출 (모든 타입에서 공통)
+        const userQuizAnswerId = (responseData as any)?.userQuizAnswerId?.toString() || '';
+
+        
+        if (displayQuiz.quizType === 'MULTIPLE_CHOICE') {
+          // 객관식: evaluate API로 정답/오답 확인
           try {
-            // 평가 API 호출하여 정답/오답 결과 받기
             const evaluateResponse = await quizAPI.evaluateQuizAnswer(userQuizAnswerId);
             
             // 평가 응답에서 결과 추출
@@ -307,33 +344,67 @@ const TodayQuizSection: React.FC = () => {
               evaluateData = evaluateResponse;
             }
             
-            // 평가 결과로 결과 설정
             const result: AnswerResult = {
-              isCorrect: (evaluateData as any)?.isCorrect || false,
+              isCorrect: (evaluateData as any)?.correct || false,
               answer: (evaluateData as any)?.answer || displayQuiz.answer || '',
               commentary: (evaluateData as any)?.commentary || displayQuiz.commentary
             };
             
             setAnswerResult(result);
+            setIsSubmitted(true);
           } catch (evaluateError) {
-            console.error('주관식 답안 평가 실패:', evaluateError);
+            console.error('객관식 답안 평가 실패:', evaluateError);
             
-            // 평가 API 실패 시 기본값으로 처리
+            // 평가 API 실패 시 응답 데이터 사용
             const fallbackResult: AnswerResult = {
-              isCorrect: false,
-              answer: displayQuiz.answer || '',
-              commentary: displayQuiz.commentary
+              isCorrect: (responseData as any)?.correct || false,
+              answer: (responseData as any)?.answer || displayQuiz.answer || '',
+              commentary: (responseData as any)?.commentary || displayQuiz.commentary
             };
             
             setAnswerResult(fallbackResult);
+            setIsSubmitted(true);
+          }
+        } else if (displayQuiz.quizType === 'SHORT_ANSWER') {
+          // 주관식: evaluate API로 정답/오답 확인
+          try {
+            const evaluateResponse = await quizAPI.evaluateQuizAnswer(userQuizAnswerId);
+            
+            // 평가 응답에서 결과 추출
+            let evaluateData;
+            if (evaluateResponse && typeof evaluateResponse === 'object') {
+              evaluateData = ('data' in evaluateResponse) ? evaluateResponse.data : evaluateResponse;
+            } else {
+              evaluateData = evaluateResponse;
+            }
+            
+            const result: AnswerResult = {
+              isCorrect: (evaluateData as any)?.correct || false,
+              answer: (evaluateData as any)?.answer || displayQuiz.answer || '',
+              commentary: (evaluateData as any)?.commentary || displayQuiz.commentary
+            };
+            
+            setAnswerResult(result);
+            setIsSubmitted(true);
+          } catch (evaluateError) {
+            console.error('주관식 답안 평가 실패:', evaluateError);
+            
+            // 평가 API 실패 시 응답 데이터 사용
+            const fallbackResult: AnswerResult = {
+              isCorrect: (responseData as any)?.correct || false,
+              answer: (responseData as any)?.answer || displayQuiz.answer || '',
+              commentary: (responseData as any)?.commentary || displayQuiz.commentary
+            };
+            
+            setAnswerResult(fallbackResult);
+            setIsSubmitted(true);
           }
         } else if (displayQuiz.quizType === 'SUBJECTIVE') {
-          // 서술형: AI 피드백 있음
-          // 먼저 기본 결과 표시 (AI 피드백 없이)
+          // 서술형: 응답 데이터로 초기 결과 설정 후 AI 피드백
           const initialResult: AnswerResult = {
-            isCorrect: false, // 일단 false로 설정, AI 피드백에서 업데이트
-            answer: displayQuiz.answer || '',
-            commentary: displayQuiz.commentary
+            isCorrect: (responseData as any)?.correct || false,
+            answer: (responseData as any)?.answer || displayQuiz.answer || '',
+            commentary: (responseData as any)?.commentary || displayQuiz.commentary
           };
           
           setAnswerResult(initialResult);
@@ -572,7 +643,7 @@ const TodayQuizSection: React.FC = () => {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
                   </svg>
                   <span className="text-sm font-medium text-blue-700">
-                    총 {isSubmitted ? selectionRates.totalCount + 1 : selectionRates.totalCount}명이 이 문제를 풀었습니다
+                    총 {isSubmitted && !isDuplicateAnswer ? selectionRates.totalCount + 1 : selectionRates.totalCount}명이 이 문제를 풀었습니다
                   </span>
                 </div>
               )}
@@ -725,8 +796,8 @@ const TodayQuizSection: React.FC = () => {
               {/* Result Section - 제출 후에만 표시 */}
               {isSubmitted && answerResult && (
                 <div className="max-w-4xl mx-auto mb-8">
-                  {/* 정답/오답 메시지 - 객관식, 주관식에 표시 FIXME: 주관식은 일단 제외)*/}
-                  {(displayQuiz?.quizType === 'MULTIPLE_CHOICE') && (
+                  {/* 정답/오답 메시지 - 모든 타입에 표시 */}
+                  {(displayQuiz?.quizType === 'MULTIPLE_CHOICE' || displayQuiz?.quizType === 'SHORT_ANSWER' || displayQuiz?.quizType === 'SUBJECTIVE') && (
                     <div className={`inline-flex items-center rounded-full px-6 py-3 mb-6 ${
                       answerResult.isCorrect ? 'bg-green-100' : 'bg-red-100'
                     }`}>
@@ -885,9 +956,15 @@ const TodayQuizSection: React.FC = () => {
                             const originalRate = selectionRates.selectionRates[choice.toString()] || 0;
                             const originalCount = Math.round(originalRate * selectionRates.totalCount);
                             
-                            // 사용자의 선택을 포함해서 새로운 비율 계산
-                            const newCount = selectedAnswer === choice ? originalCount + 1 : originalCount;
-                            const newTotalCount = selectionRates.totalCount + 1;
+                            // 중복 답변이 아닌 경우에만 사용자의 선택을 포함해서 새로운 비율 계산
+                            let newCount = originalCount;
+                            let newTotalCount = selectionRates.totalCount;
+                            
+                            if (!isDuplicateAnswer) {
+                              newCount = selectedAnswer === choice ? originalCount + 1 : originalCount;
+                              newTotalCount = selectionRates.totalCount + 1;
+                            }
+                            
                             const newRate = newCount / newTotalCount;
                             const actualPercentage = Math.round(newRate * 100);
                             
