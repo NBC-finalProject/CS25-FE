@@ -837,8 +837,8 @@ const TodayQuizSection: React.FC = () => {
               {/* Result Section - 제출 후에만 표시 */}
               {isSubmitted && answerResult && (
                 <div className="max-w-4xl mx-auto mb-8">
-                  {/* 정답/오답 메시지 - 모든 타입에 표시 */}
-                  {(displayQuiz?.quizType === 'MULTIPLE_CHOICE' || displayQuiz?.quizType === 'SHORT_ANSWER' || displayQuiz?.quizType === 'SUBJECTIVE') && (
+                  {/* 정답/오답 메시지 - 객관식에만 표시 */}
+                  {(displayQuiz?.quizType === 'MULTIPLE_CHOICE') && (
                     <div className={`inline-flex items-center rounded-full px-6 py-3 mb-6 ${
                       answerResult.isCorrect ? 'bg-green-100' : 'bg-red-100'
                     }`}>
