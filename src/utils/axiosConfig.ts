@@ -1,7 +1,7 @@
 import axios, { AxiosInstance, AxiosResponse, InternalAxiosRequestConfig } from 'axios';
 
 const { VITE_NODE_ENV } = import.meta.env;
-const API_BASE_URL = VITE_NODE_ENV === 'prod' ? 'https://cs25.co.kr/api' : 'http://localhost:8080';
+const API_BASE_URL = VITE_NODE_ENV === 'prod' ? 'https://cs25.co.kr/api' : 'http://localhost:5173';
 
 // Create axios instance for authenticated requests
 const apiClient: AxiosInstance = axios.create({
