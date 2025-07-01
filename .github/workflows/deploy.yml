@@ -17,7 +17,7 @@ jobs:
         run: |
           docker build \
           --build-arg VITE_API_URL=${{ secrets.VITE_API_URL }} \
-          --build-arg NODE_ENV=${{ secrets.NODE_ENV }} \
+          --build-arg VITE_NODE_ENV=${{ secrets.VITE_NODE_ENV }} \
           -t ${{secrets.DOCKERHUB_REPO}} .
           docker tag ${{secrets.DOCKERHUB_REPO}}:latest ${{secrets.DOCKERHUB_USERNAME}}/${{secrets.DOCKERHUB_REPO}}:latest
           docker push ${{secrets.DOCKERHUB_USERNAME}}/${{secrets.DOCKERHUB_REPO}}:latest
@@ -33,7 +33,7 @@ jobs:
             sudo docker pull ${{secrets.DOCKERHUB_USERNAME}}/${{secrets.DOCKERHUB_REPO}}:latest
             sudo docker run \
               -e VITE_API_URL=${{ secrets.VITE_API_URL }} \
-              -e NODE_ENV=${{ secrets.NODE_ENV }} \
+              -e VITE_NODE_ENV=${{ secrets.VITE_NODE_ENV }} \
               -v /etc/letsencrypt:/etc/letsencrypt:ro \
               -d -p 80:80 -p 443:443 \
               --name ${{secrets.DOCKERHUB_REPO}} \
