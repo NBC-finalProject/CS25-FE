@@ -138,7 +138,15 @@ const TodayQuizSection: React.FC = () => {
       const timer = setTimeout(() => {
         const newPercentages: {[key: number]: number} = {};
         [1, 2, 3, 4].forEach(choice => {
-          const originalRate = selectionRates.selectionRates[choice.toString()] || 0;
+          // API 응답에서 선택지 텍스트를 키로 사용하는 경우 처리
+          let originalRate = selectionRates.selectionRates[choice.toString()] || 0;
+          
+          // 선택지 텍스트를 키로 찾아보기
+          Object.keys(selectionRates.selectionRates).forEach(key => {
+            if (key.startsWith(`${choice}.`)) {
+              originalRate = selectionRates.selectionRates[key];
+            }
+          });
           const originalCount = Math.round(originalRate * selectionRates.totalCount);
           
           // 중복 답변이 아닌 경우에만 새로운 선택을 카운트에 추가
@@ -973,7 +981,10 @@ const TodayQuizSection: React.FC = () => {
                         <h4 className="text-base sm:text-lg font-bold text-gray-900 mb-3 sm:mb-4">선택 비율</h4>
                         <div className="space-y-2 sm:space-y-3">
                           {[1, 2, 3, 4].map(choice => {
-                            const originalRate = selectionRates.selectionRates[choice.toString()] || 0;
+                            // API 응답에서 선택지 텍스트를 키로 사용하는 경우 처리
+                            const choiceKey = `choice${choice}` as keyof QuizData;
+                            const choiceText = displayQuiz[choiceKey] as string;
+                            const originalRate = selectionRates.selectionRates[choiceText] || selectionRates.selectionRates[choice.toString()] || 0;
                             const originalCount = Math.round(originalRate * selectionRates.totalCount);
                             
                             // 중복 답변이 아닌 경우에만 사용자의 선택을 포함해서 새로운 비율 계산
