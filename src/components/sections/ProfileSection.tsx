@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useUserProfile, useUserWrongQuiz, useUserCorrectRate } from '../../hooks';
-import { getMainCategoryLabel, getSubCategoryLabel } from '../../utils/categoryUtils';
+import { getSubCategoryLabel } from '../../utils/categoryUtils';
 import Container from '../common/Container';
 import Section from '../common/Section';
 
@@ -17,12 +17,13 @@ const ProfileSection: React.FC = () => {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<'overview' | 'wrong-quiz' | 'correct-rate'>('overview');
   const [expandedQuizzes, setExpandedQuizzes] = useState<Set<number>>(new Set());
+  const [currentPage, setCurrentPage] = useState(0);
 
   // 사용자 프로필 조회
   const { data: profile, isLoading: profileLoading } = useUserProfile();
 
   // 틀린 문제 조회
-  const { data: wrongQuizData, isLoading: wrongQuizLoading } = useUserWrongQuiz(activeTab === 'wrong-quiz');
+  const { data: wrongQuizData, isLoading: wrongQuizLoading } = useUserWrongQuiz(activeTab === 'wrong-quiz', currentPage);
 
   // 카테고리별 정답률 조회
   const { data: correctRateData, isLoading: correctRateLoading } = useUserCorrectRate(activeTab === 'correct-rate');
@@ -372,6 +373,52 @@ const ProfileSection: React.FC = () => {
                           </div>
                         );
                       })}
+                      
+                      {/* 페이지네이션 */}
+                      {wrongQuizData && wrongQuizData.totalPages > 1 && (
+                        <div className="flex justify-center items-center space-x-2 mt-6">
+                          {/* 이전 버튼 */}
+                          <button
+                            onClick={() => setCurrentPage(prev => Math.max(0, prev - 1))}
+                            disabled={!wrongQuizData.hasPrevious}
+                            className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                              wrongQuizData.hasPrevious
+                                ? 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                                : 'bg-gray-50 text-gray-400 cursor-not-allowed'
+                            }`}
+                          >
+                            이전
+                          </button>
+
+                          {/* 페이지 번호들 */}
+                          {Array.from({ length: wrongQuizData.totalPages }, (_, i) => (
+                            <button
+                              key={i}
+                              onClick={() => setCurrentPage(i)}
+                              className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                                currentPage === i
+                                  ? 'bg-brand-500 text-white'
+                                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                              }`}
+                            >
+                              {i + 1}
+                            </button>
+                          ))}
+
+                          {/* 다음 버튼 */}
+                          <button
+                            onClick={() => setCurrentPage(prev => Math.min(wrongQuizData.totalPages - 1, prev + 1))}
+                            disabled={!wrongQuizData.hasNext}
+                            className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                              wrongQuizData.hasNext
+                                ? 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                                : 'bg-gray-50 text-gray-400 cursor-not-allowed'
+                            }`}
+                          >
+                            다음
+                          </button>
+                        </div>
+                      )}
                     </div>
                   ) : (
                     <div className="text-center sm:text-left py-12">

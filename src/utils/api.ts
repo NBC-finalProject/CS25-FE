@@ -238,8 +238,8 @@ export const userAPI = {
   },
 
   // 사용자 틀린 문제 조회
-  getWrongQuiz: async () => {
-    return apiRequest('/profile/wrong-quiz', {
+  getWrongQuiz: async (page: number = 0) => {
+    return apiRequest(`/profile/wrong-quiz?page=${page}`, {
       method: 'GET'
     });
   },

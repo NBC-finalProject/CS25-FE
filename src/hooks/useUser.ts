@@ -8,7 +8,7 @@ export const userKeys = {
   profileSubscription: () => [...userKeys.all, 'profileSubscription'] as const,
   quizHistory: (page: number, size: number) => [...userKeys.all, 'quizHistory', page, size] as const,
   ranking: (page: number, size: number) => [...userKeys.all, 'ranking', page, size] as const,
-  wrongQuiz: () => [...userKeys.all, 'wrongQuiz'] as const,
+  wrongQuiz: (page?: number) => [...userKeys.all, 'wrongQuiz', page] as const,
   correctRate: () => [...userKeys.all, 'correctRate'] as const,
 };
 
@@ -60,11 +60,11 @@ export const useUserProfileSubscription = (enabled: boolean = true) => {
 // };
 
 // 사용자 틀린 문제 조회
-export const useUserWrongQuiz = (enabled: boolean = true) => {
+export const useUserWrongQuiz = (enabled: boolean = true, page: number = 0) => {
   return useQuery({
-    queryKey: userKeys.wrongQuiz(),
+    queryKey: userKeys.wrongQuiz(page),
     queryFn: async () => {
-      const response = await userAPI.getWrongQuiz();
+      const response = await userAPI.getWrongQuiz(page);
       return (response as any).data;
     },
     enabled,
