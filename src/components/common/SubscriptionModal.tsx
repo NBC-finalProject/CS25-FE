@@ -227,17 +227,18 @@ const SubscriptionModal: React.FC<SubscriptionModalProps> = ({ isOpen, onClose }
               onSuccess: () => {
                 setStep('success');
               },
-              onError: (error) => {
+              onError: (error: any) => {
                 console.error('구독 생성 실패:', error);
-                const errorMessage = error?.message || '구독 생성에 실패했습니다. 다시 시도해주세요.';
+                const errorMessage = error.response?.data?.message || '구독 생성에 실패했습니다. 다시 시도해주세요.';
                 setFormErrors({ subscription: errorMessage });
               },
             }
           );
         },
-        onError: (error) => {
+        onError: (error: any) => {
           console.error('인증 실패:', error);
-          setFormErrors({ verification: '인증에 실패했습니다. 인증번호를 확인해주세요.' });
+          const errorMessage = error.response?.data?.message || '인증에 실패했습니다. 인증번호를 확인해주세요.';
+          setFormErrors({ verification: errorMessage });
         },
       }
     );
