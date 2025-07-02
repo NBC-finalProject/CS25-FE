@@ -25,9 +25,9 @@ const LoginForm: React.FC = () => {
         GitHub로 시작하기
       </SocialButton>
 
-      {/* <SocialButton provider="naver" onClick={() => handleSocialLogin('naver')}>
+      <SocialButton provider="naver" onClick={() => handleSocialLogin('naver')}>
         네이버로 시작하기
-      </SocialButton> */}
+      </SocialButton>
 
       <div className="mt-8 pt-5 border-t border-gray-200 text-gray-500 text-sm">
         로그인하시면 서비스 이용약관과<br />
