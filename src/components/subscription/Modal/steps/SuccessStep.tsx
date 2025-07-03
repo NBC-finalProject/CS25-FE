@@ -1,4 +1,5 @@
 import React from 'react';
+import { getCategoryLabel } from '../../../../utils/categoryUtils';
 import { FormData } from '../types';
 
 interface SuccessStepProps {
@@ -7,76 +8,59 @@ interface SuccessStepProps {
 }
 
 const SuccessStep: React.FC<SuccessStepProps> = ({ formData, onClose }) => {
-  const weekdayLabels: { [key: string]: string } = {
-    'MONDAY': '월요일',
-    'TUESDAY': '화요일',
-    'WEDNESDAY': '수요일',
-    'THURSDAY': '목요일',
-    'FRIDAY': '금요일',
-    'SATURDAY': '토요일',
-    'SUNDAY': '일요일'
-  };
+  const weekdays = [
+    { id: 'MONDAY', label: '월' },
+    { id: 'TUESDAY', label: '화' },
+    { id: 'WEDNESDAY', label: '수' },
+    { id: 'THURSDAY', label: '목' },
+    { id: 'FRIDAY', label: '금' },
+    { id: 'SATURDAY', label: '토' },
+    { id: 'SUNDAY', label: '일' }
+  ];
 
-  const periodLabels: { [key: string]: string } = {
-    'ONE_MONTH': '1개월',
-    'THREE_MONTHS': '3개월',
-    'SIX_MONTHS': '6개월',
-    'ONE_YEAR': '1년'
+  const periods = [
+    { id: 'ONE_MONTH', label: '1개월' },
+    { id: 'THREE_MONTHS', label: '3개월' },
+    { id: 'SIX_MONTHS', label: '6개월' },
+    { id: 'ONE_YEAR', label: '1년' }
+  ];
+
+  const sortWeekdays = (selectedWeekdays: string[]) => {
+    const weekdayOrder = ['MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY', 'SATURDAY', 'SUNDAY'];
+    return selectedWeekdays.sort((a, b) => weekdayOrder.indexOf(a) - weekdayOrder.indexOf(b));
   };
 
   return (
-    <div className="space-y-6">
-      <div className="text-center">
-        <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-          <svg className="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-          </svg>
-        </div>
-        <h2 className="text-2xl font-bold mb-2 text-gray-900">🎉 구독 완료!</h2>
-        <p className="text-gray-600">구독이 성공적으로 완료되었습니다.</p>
+    <div className="text-center space-y-4">
+      <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto">
+        <svg className="w-8 h-8 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+        </svg>
       </div>
-
-      <div className="bg-gray-50 rounded-lg p-4">
-        <h3 className="font-medium text-gray-900 mb-3">구독 정보</h3>
-        <div className="space-y-2 text-sm">
-          <div className="flex justify-between">
-            <span className="text-gray-600">이메일:</span>
-            <span className="font-medium">{formData.email}</span>
-          </div>
-          <div className="flex justify-between">
-            <span className="text-gray-600">구독 기간:</span>
-            <span className="font-medium">{periodLabels[formData.period] || formData.period}</span>
-          </div>
-          <div className="flex justify-between">
-            <span className="text-gray-600">수신 요일:</span>
-            <span className="font-medium">
-              {formData.weekdays.map(day => weekdayLabels[day] || day).join(', ')}
-            </span>
-          </div>
-        </div>
-      </div>
-
-      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-        <div className="flex">
-          <div className="flex-shrink-0">
-            <svg className="h-5 w-5 text-blue-400" fill="currentColor" viewBox="0 0 20 20">
-              <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
-            </svg>
-          </div>
-          <div className="ml-3">
-            <p className="text-sm text-blue-700">
-              선택하신 요일에 새로운 CS 문제가 이메일로 전송됩니다. 
-              정기적인 학습으로 실력을 향상시켜보세요!
-            </p>
+      
+      <div>
+        <h3 className="text-xl font-semibold text-gray-800 mb-2">구독이 완료되었습니다!</h3>
+        <p className="text-gray-600 mb-4">
+          선택하신 요일에 맞춰<br />
+          기술 면접 문제를 발송해드리겠습니다.
+        </p>
+        
+        <div className="bg-gray-50 p-4 rounded-lg text-left">
+          <div className="text-sm text-gray-600 space-y-1">
+            <p><strong>이메일:</strong> {formData.email}</p>
+            <p><strong>분야:</strong> {formData.categories.map(cat => getCategoryLabel(cat)).join(', ')}</p>
+            <p><strong>요일:</strong> {sortWeekdays(formData.weekdays).map(day => 
+              weekdays.find(w => w.id === day)?.label).join(', ')}</p>
+            <p><strong>구독 기간:</strong> {periods.find(p => p.id === formData.period)?.label}</p>
           </div>
         </div>
       </div>
 
       <button
         onClick={onClose}
-        className="w-full bg-gradient-to-r from-brand-500 to-brand-600 text-white py-3 px-4 rounded-lg font-medium hover:from-brand-600 hover:to-brand-700 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2 transition-all duration-300"
+        className="w-full px-4 py-2 bg-gradient-to-r from-brand-500 to-brand-600 text-white rounded-lg hover:from-brand-600 hover:to-brand-700 transition-all duration-300 shadow-sm"
       >
-        완료
+        확인
       </button>
     </div>
   );

@@ -7,7 +7,11 @@ interface VerificationStepProps {
   verificationCode: string;
   onVerificationCodeChange: (code: string) => void;
   onVerifyCode: () => void;
-  onBackToForm: () => void;
+  onResendEmail: () => void;
+  verifyCodeMutation: any;
+  createSubscriptionMutation: any;
+  checkEmailMutation: any;
+  emailVerificationMutation: any;
 }
 
 const VerificationStep: React.FC<VerificationStepProps> = ({
@@ -16,54 +20,79 @@ const VerificationStep: React.FC<VerificationStepProps> = ({
   verificationCode,
   onVerificationCodeChange,
   onVerifyCode,
-  onBackToForm
+  onResendEmail,
+  verifyCodeMutation,
+  createSubscriptionMutation,
+  checkEmailMutation,
+  emailVerificationMutation
 }) => {
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    onVerifyCode();
+  };
+
   return (
-    <div className="space-y-6">
-      <div className="text-center">
-        <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
-          <svg className="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-          </svg>
-        </div>
-        <h2 className="text-2xl font-bold mb-2 text-gray-900">📧 이메일 인증</h2>
-        <p className="text-gray-600 mb-2">
-          <span className="font-medium text-gray-900">{formData.email}</span>로
-        </p>
-        <p className="text-gray-600">인증 코드를 발송했습니다. 이메일을 확인해주세요.</p>
+    <div className="text-center space-y-4">
+      <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto">
+        <svg className="w-8 h-8 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+        </svg>
       </div>
-
+      
       <div>
-        <label htmlFor="verificationCode" className="block text-sm font-medium text-gray-700 mb-2">
-          인증 코드 <span className="text-red-500">*</span>
-        </label>
-        <input
-          type="text"
-          id="verificationCode"
-          value={verificationCode}
-          onChange={(e) => onVerificationCodeChange(e.target.value)}
-          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent text-center text-lg tracking-widest"
-          placeholder="6자리 숫자"
-          maxLength={6}
-        />
-        {formErrors.verification && <p className="mt-1 text-sm text-red-600">{formErrors.verification}</p>}
+        <h3 className="text-xl font-semibold text-gray-800 mb-2">인증 메일을 발송했습니다</h3>
+        <p className="text-gray-600 mb-1">{formData.email}로</p>
+        <p className="text-gray-600">인증번호가 포함된 메일을 발송했습니다.</p>
       </div>
 
-      <div className="space-y-3">
-        <button
-          onClick={onVerifyCode}
-          className="w-full bg-gradient-to-r from-brand-500 to-brand-600 text-white py-3 px-4 rounded-lg font-medium hover:from-brand-600 hover:to-brand-700 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2 transition-all duration-300"
-        >
-          인증 확인
-        </button>
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <div>
+          <input
+            type="text"
+            value={verificationCode}
+            onChange={(e) => onVerificationCodeChange(e.target.value)}
+            placeholder="인증번호 6자리 입력"
+            maxLength={6}
+            className="w-full px-4 py-3 text-center text-lg border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-400 focus:border-brand-400 outline-none tracking-widest"
+          />
+          {formErrors.verification && (
+            <p className="text-red-500 text-sm mt-2 flex items-center justify-center">
+              <svg className="w-4 h-4 mr-1 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+              </svg>
+              {formErrors.verification}
+            </p>
+          )}
+        </div>
         
         <button
-          onClick={onBackToForm}
-          className="w-full bg-gray-100 text-gray-700 py-3 px-4 rounded-lg font-medium hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-all duration-300"
+          type="submit"
+          disabled={verifyCodeMutation.isPending || createSubscriptionMutation.isPending}
+          className="w-full px-4 py-2 bg-gradient-to-r from-brand-500 to-brand-600 text-white rounded-lg hover:from-brand-600 hover:to-brand-700 transition-all duration-300 shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          이전으로 돌아가기
+          {verifyCodeMutation.isPending || createSubscriptionMutation.isPending ? '처리 중...' : '인증 완료'}
         </button>
-      </div>
+        
+        {/* 구독 생성 에러 메시지 */}
+        {formErrors.subscription && (
+          <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-lg">
+            <p className="text-red-700 text-sm flex items-center">
+              <svg className="w-4 h-4 mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+              </svg>
+              {formErrors.subscription}
+            </p>
+          </div>
+        )}
+      </form>
+
+      <button
+        onClick={onResendEmail}
+        disabled={checkEmailMutation.isPending || emailVerificationMutation.isPending}
+        className="text-sm text-brand-400 hover:text-brand-500 underline disabled:opacity-50"
+      >
+        인증 메일 재발송
+      </button>
     </div>
   );
 };

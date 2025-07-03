@@ -9,7 +9,10 @@ interface FormStepProps {
   categoriesData: any;
   categoriesLoading: boolean;
   onFormDataChange: (data: Partial<FormData>) => void;
-  onSubmit: (e: React.FormEvent) => void;
+  onVerifyEmail: () => void;
+  onEmailChange: (email: string) => void;
+  checkEmailMutation: any;
+  emailVerificationMutation: any;
 }
 
 const FormStep: React.FC<FormStepProps> = ({
@@ -19,152 +22,256 @@ const FormStep: React.FC<FormStepProps> = ({
   categoriesData,
   categoriesLoading,
   onFormDataChange,
-  onSubmit
+  onVerifyEmail,
+  onEmailChange,
+  checkEmailMutation,
+  emailVerificationMutation
 }) => {
-  const categories = categoriesData?.data || categoriesData || [];
+  // API 응답이 {data: []} 형태인지 확인하고 처리
+  const categoryList = (categoriesData && typeof categoriesData === 'object' && 'data' in categoriesData) 
+    ? categoriesData.data 
+    : categoriesData;
+  const categories = Array.isArray(categoryList) ? categoryList.map((category: string) => ({
+    id: category,
+    label: getCategoryLabel(category)
+  })) : [];
 
-  const handleCategoryChange = (category: string) => {
-    const newCategories = formData.categories.includes(category)
-      ? formData.categories.filter(c => c !== category)
-      : [...formData.categories, category];
-    onFormDataChange({ categories: newCategories });
+  const weekdays = [
+    { id: 'MONDAY', label: '월' },
+    { id: 'TUESDAY', label: '화' },
+    { id: 'WEDNESDAY', label: '수' },
+    { id: 'THURSDAY', label: '목' },
+    { id: 'FRIDAY', label: '금' },
+    { id: 'SATURDAY', label: '토' },
+    { id: 'SUNDAY', label: '일' }
+  ];
+
+  const periods = [
+    { id: 'ONE_MONTH', label: '1개월' },
+    { id: 'THREE_MONTHS', label: '3개월' },
+    { id: 'SIX_MONTHS', label: '6개월' },
+    { id: 'ONE_YEAR', label: '1년' }
+  ];
+
+  const handleCategoryChange = (categoryId: string) => {
+    onFormDataChange({ categories: [categoryId] }); // 단일 선택만 허용
   };
 
-  const handleWeekdayChange = (day: string) => {
-    const newWeekdays = formData.weekdays.includes(day)
-      ? formData.weekdays.filter(d => d !== day)
-      : [...formData.weekdays, day];
+  const handleWeekdayChange = (weekdayId: string) => {
+    const newWeekdays = formData.weekdays.includes(weekdayId)
+      ? formData.weekdays.filter(id => id !== weekdayId)
+      : [...formData.weekdays, weekdayId];
     onFormDataChange({ weekdays: newWeekdays });
   };
 
-  const weekdayOptions = [
-    { value: 'MONDAY', label: '월' },
-    { value: 'TUESDAY', label: '화' },
-    { value: 'WEDNESDAY', label: '수' },
-    { value: 'THURSDAY', label: '목' },
-    { value: 'FRIDAY', label: '금' },
-    { value: 'SATURDAY', label: '토' },
-    { value: 'SUNDAY', label: '일' }
-  ];
+  const handlePeriodChange = (periodId: string) => {
+    onFormDataChange({ period: periodId });
+  };
 
   return (
-    <form onSubmit={onSubmit} className="space-y-6">
-      <div className="text-center">
-        <h2 className="text-2xl font-bold mb-2 text-gray-900">📧 이메일 구독하기</h2>
-        <p className="text-gray-600">매일 새로운 CS 문제를 이메일로 받아보세요!</p>
-      </div>
-
-      {/* 카테고리 선택 */}
+    <form className="space-y-4">
+      {/* 질문 카테고리 */}
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-3">
-          관심 카테고리 선택 <span className="text-red-500">*</span>
-        </label>
+        <h3 className="text-base font-semibold text-gray-800 mb-3">관심 있는 분야를 선택해주세요</h3>
         {categoriesLoading ? (
-          <div className="text-center py-4">
-            <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-brand-500 mx-auto"></div>
+          <div className="flex items-center justify-center py-4">
+            <div className="text-gray-500">카테고리를 불러오는 중...</div>
+          </div>
+        ) : categories.length === 0 ? (
+          <div className="flex items-center justify-center py-4">
+            <div className="text-gray-500">사용 가능한 카테고리가 없습니다.</div>
           </div>
         ) : (
-          <div className="grid grid-cols-1 gap-2">
-            {categories.map((category: string) => (
-              <label key={category} className="flex items-center p-3 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors">
+          <div className="flex space-x-3">
+            {categories.map(category => (
+            <label 
+              key={category.id} 
+              className={`flex-1 flex items-center justify-center space-x-2 cursor-pointer p-2 rounded-lg border transition-all duration-300 ${
+                formData.categories.includes(category.id) 
+                  ? 'border-brand-400 bg-brand-50 shadow-sm' 
+                  : 'border-gray-200 hover:bg-gray-50 hover:border-gray-300'
+              }`}
+            >
+              <div className="relative">
                 <input
-                  type="checkbox"
-                  checked={formData.categories.includes(category)}
-                  onChange={() => handleCategoryChange(category)}
-                  className="h-4 w-4 text-brand-600 border-gray-300 rounded focus:ring-brand-500"
+                  type="radio"
+                  name="category"
+                  checked={formData.categories.includes(category.id)}
+                  onChange={() => handleCategoryChange(category.id)}
+                  className="sr-only"
                 />
-                <span className="ml-3 text-sm text-gray-700">{getCategoryLabel(category)}</span>
-              </label>
+                <div className={`w-5 h-5 rounded-full border-2 transition-all duration-300 flex items-center justify-center ${
+                  formData.categories.includes(category.id)
+                    ? 'border-brand-400 bg-gradient-to-r from-brand-500 to-brand-600'
+                    : 'border-gray-300'
+                }`}>
+                  <div className={`w-2 h-2 rounded-full bg-white transition-all duration-300 transform ${
+                    formData.categories.includes(category.id) ? 'scale-100' : 'scale-0'
+                  }`} />
+                </div>
+              </div>
+              <span className={`text-sm font-medium transition-all duration-300 shadow-sm ${
+                formData.categories.includes(category.id) ? 'text-brand-700' : 'text-gray-700'
+              }`}>
+                {category.label}
+              </span>
+            </label>
             ))}
           </div>
         )}
-        {formErrors.category && <p className="mt-1 text-sm text-red-600">{formErrors.category}</p>}
+        <p className="text-sm text-gray-500 mt-2">* 하나의 분야를 선택해주세요</p>
+        {formErrors.category && (
+          <p className="text-red-500 text-sm mt-2 flex items-center">
+            <svg className="w-4 h-4 mr-1 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+              <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+            </svg>
+            {formErrors.category}
+          </p>
+        )}
       </div>
 
-      {/* 요일 선택 */}
+      {/* 문제 받는 주기 */}
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-3">
-          수신 요일 선택 <span className="text-red-500">*</span>
-        </label>
-        <div className="grid grid-cols-7 gap-2">
-          {weekdayOptions.map((day) => (
-            <label key={day.value} className={`flex items-center justify-center p-2 border rounded-lg cursor-pointer transition-all ${
-              formData.weekdays.includes(day.value)
-                ? 'border-brand-500 bg-brand-50 text-brand-700'
-                : 'border-gray-200 hover:bg-gray-50'
-            }`}>
-              <input
-                type="checkbox"
-                checked={formData.weekdays.includes(day.value)}
-                onChange={() => handleWeekdayChange(day.value)}
-                className="sr-only"
-              />
-              <span className="text-sm font-medium">{day.label}</span>
+        <h3 className="text-base font-semibold text-gray-800 mb-3">문제를 받고 싶은 요일을 선택해주세요</h3>
+        <div className="grid grid-cols-4 gap-3">
+          {weekdays.map(weekday => (
+            <label 
+              key={weekday.id} 
+              className={`flex items-center justify-center space-x-2 cursor-pointer p-2 rounded-lg border transition-all duration-300 ${
+                formData.weekdays.includes(weekday.id)
+                  ? 'border-brand-400 bg-brand-50 shadow-sm'
+                  : 'border-gray-200 hover:bg-gray-50 hover:border-gray-300'
+              }`}
+            >
+              <div className="relative">
+                <input
+                  type="checkbox"
+                  checked={formData.weekdays.includes(weekday.id)}
+                  onChange={() => handleWeekdayChange(weekday.id)}
+                  className="sr-only"
+                />
+                <div className={`w-4 h-4 rounded border-2 transition-all duration-300 flex items-center justify-center ${
+                  formData.weekdays.includes(weekday.id)
+                    ? 'border-brand-400 bg-gradient-to-r from-brand-500 to-brand-600'
+                    : 'border-gray-300'
+                }`}>
+                  <svg 
+                    className={`w-2.5 h-2.5 text-white transition-all duration-300 transform ${
+                      formData.weekdays.includes(weekday.id) ? 'scale-100 opacity-100' : 'scale-0 opacity-0'
+                    }`} 
+                    fill="currentColor" 
+                    viewBox="0 0 20 20"
+                  >
+                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                  </svg>
+                </div>
+              </div>
+              <span className={`text-sm font-medium transition-all duration-300 shadow-sm ${
+                formData.weekdays.includes(weekday.id) ? 'text-brand-700' : 'text-gray-700'
+              }`}>
+                {weekday.label}
+              </span>
             </label>
           ))}
         </div>
-        {formErrors.weekdays && <p className="mt-1 text-sm text-red-600">{formErrors.weekdays}</p>}
+        <p className="text-sm text-gray-500 mt-2">* 최소 1개 이상 선택해주세요</p>
+        {formErrors.weekdays && (
+          <p className="text-red-500 text-sm mt-2 flex items-center">
+            <svg className="w-4 h-4 mr-1 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+              <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+            </svg>
+            {formErrors.weekdays}
+          </p>
+        )}
       </div>
 
-      {/* 이메일 주소 */}
+      {/* 구독 기간 선택 */}
       <div>
-        <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
-          이메일 주소 <span className="text-red-500">*</span>
-        </label>
-        <input
-          type="email"
-          id="email"
-          value={formData.email}
-          onChange={(e) => onFormDataChange({ email: e.target.value })}
-          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent"
-          placeholder="example@email.com"
-          required
-        />
-        {emailError && <p className="mt-1 text-sm text-red-600">{emailError}</p>}
-      </div>
-
-      {/* 구독 기간 */}
-      <div>
-        <label className="block text-sm font-medium text-gray-700 mb-3">
-          구독 기간 <span className="text-red-500">*</span>
-        </label>
-        <div className="grid grid-cols-1 gap-3">
-          {[
-            { value: 'ONE_MONTH', label: '1개월', price: '무료' },
-            { value: 'THREE_MONTHS', label: '3개월', price: '무료' },
-            { value: 'SIX_MONTHS', label: '6개월', price: '무료' },
-            { value: 'ONE_YEAR', label: '1년', price: '무료' }
-          ].map((option) => (
-            <label key={option.value} className={`flex items-center justify-between p-4 border rounded-lg cursor-pointer transition-all ${
-              formData.period === option.value
-                ? 'border-brand-500 bg-brand-50'
-                : 'border-gray-200 hover:bg-gray-50'
-            }`}>
-              <div className="flex items-center">
+        <h3 className="text-base font-semibold text-gray-800 mb-3">구독 기간을 선택해주세요</h3>
+        <div className="grid grid-cols-2 gap-3">
+          {periods.map(period => (
+            <label 
+              key={period.id} 
+              className={`flex items-center justify-center space-x-2 cursor-pointer p-3 rounded-lg border transition-all duration-300 ${
+                formData.period === period.id
+                  ? 'border-brand-400 bg-brand-50 shadow-sm'
+                  : 'border-gray-200 hover:bg-gray-50 hover:border-gray-300'
+              }`}
+            >
+              <div className="relative">
                 <input
                   type="radio"
                   name="period"
-                  value={option.value}
-                  checked={formData.period === option.value}
-                  onChange={(e) => onFormDataChange({ period: e.target.value })}
-                  className="h-4 w-4 text-brand-600 border-gray-300 focus:ring-brand-500"
+                  checked={formData.period === period.id}
+                  onChange={() => handlePeriodChange(period.id)}
+                  className="sr-only"
                 />
-                <span className="ml-3 text-sm font-medium text-gray-700">{option.label}</span>
+                <div className={`w-5 h-5 rounded-full border-2 transition-all duration-300 flex items-center justify-center ${
+                  formData.period === period.id
+                    ? 'border-brand-400 bg-gradient-to-r from-brand-500 to-brand-600'
+                    : 'border-gray-300'
+                }`}>
+                  <div className={`w-2 h-2 rounded-full bg-white transition-all duration-300 transform ${
+                    formData.period === period.id ? 'scale-100' : 'scale-0'
+                  }`} />
+                </div>
               </div>
-              <span className="text-sm font-bold text-green-600">{option.price}</span>
+              <span className={`text-sm font-medium transition-all duration-300 shadow-sm ${
+                formData.period === period.id ? 'text-brand-700' : 'text-gray-700'
+              }`}>
+                {period.label}
+              </span>
             </label>
           ))}
         </div>
-        {formErrors.period && <p className="mt-1 text-sm text-red-600">{formErrors.period}</p>}
+        <p className="text-sm text-gray-500 mt-2">* 구독 기간을 선택해주세요</p>
+        {formErrors.period && (
+          <p className="text-red-500 text-sm mt-2 flex items-center">
+            <svg className="w-4 h-4 mr-1 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+              <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+            </svg>
+            {formErrors.period}
+          </p>
+        )}
       </div>
 
-      {/* 제출 버튼 */}
-      <button
-        type="submit"
-        className="w-full bg-gradient-to-r from-brand-500 to-brand-600 text-white py-3 px-4 rounded-lg font-medium hover:from-brand-600 hover:to-brand-700 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2 transition-all duration-300"
-      >
-        인증 이메일 발송
-      </button>
+      {/* 이메일 입력 */}
+      <div>
+        <h3 className="text-base font-semibold text-gray-800 mb-3">이메일 주소</h3>
+        <div className="flex space-x-2 items-start">
+          <div className="flex-1">
+            <input
+              type="email"
+              name="email"
+              inputMode="email"
+              value={formData.email}
+              onChange={(e) => onEmailChange(e.target.value)}
+              placeholder="example@email.com"
+              className={`w-full px-3 py-2.5 border rounded-lg focus:ring-2 focus:border-brand-400 outline-none transition-all duration-300 shadow-sm ${
+                emailError 
+                  ? 'border-red-300 focus:ring-red-400 focus:border-red-400' 
+                  : 'border-gray-300 focus:ring-brand-400'
+              }`}
+            />
+            {emailError && (
+              <p className="text-red-500 text-sm mt-2 flex items-center">
+                <svg className="w-4 h-4 mr-1 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                </svg>
+                {emailError}
+              </p>
+            )}
+          </div>
+          <button
+            type="button"
+            onClick={onVerifyEmail}
+            disabled={checkEmailMutation.isPending || emailVerificationMutation.isPending || !!emailError || !formData.email}
+            className="px-4 py-3 bg-gradient-to-r from-brand-500 to-brand-600 text-white rounded-lg hover:from-brand-600 hover:to-brand-700 transition-all duration-300 whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed flex-shrink-0 text-sm shadow-sm"
+          >
+            {checkEmailMutation.isPending ? '확인 중...' : emailVerificationMutation.isPending ? '발송 중...' : '인증하기'}
+          </button>
+        </div>
+      </div>
     </form>
   );
 };

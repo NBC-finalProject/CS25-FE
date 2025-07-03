@@ -35,15 +35,20 @@ const SubscriptionModal: React.FC<SubscriptionModalProps> = ({ isOpen, onClose }
     if (data.period) setFormErrors(prev => ({ ...prev, period: undefined }));
   };
 
+  const handleEmailChange = (email: string) => {
+    setFormData(prev => ({ ...prev, email }));
+    setEmailError('');
+  };
+
   const validateForm = (): boolean => {
     const errors: FormErrors = {};
     
     if (formData.categories.length === 0) {
-      errors.category = '최소 하나의 카테고리를 선택해주세요.';
+      errors.category = '분야를 선택해주세요.';
     }
     
     if (formData.weekdays.length === 0) {
-      errors.weekdays = '최소 하나의 요일을 선택해주세요.';
+      errors.weekdays = '요일을 선택해주세요.';
     }
     
     if (!formData.period) {
@@ -54,9 +59,7 @@ const SubscriptionModal: React.FC<SubscriptionModalProps> = ({ isOpen, onClose }
     return Object.keys(errors).length === 0;
   };
 
-  const handleFormSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
+  const handleVerifyEmail = async () => {
     if (!validateForm()) {
       return;
     }
@@ -116,13 +119,7 @@ const SubscriptionModal: React.FC<SubscriptionModalProps> = ({ isOpen, onClose }
     }
   };
 
-  const handleBackToForm = () => {
-    setStep('form');
-    setVerificationCode('');
-    setFormErrors({});
-  };
-
-  const handleClose = () => {
+  const handleModalClose = () => {
     setStep('form');
     setVerificationCode('');
     setEmailError('');
@@ -136,53 +133,43 @@ const SubscriptionModal: React.FC<SubscriptionModalProps> = ({ isOpen, onClose }
     onClose();
   };
 
-  const isLoading = emailVerificationMutation.isPending || 
-                   verifyCodeMutation.isPending || 
-                   createSubscriptionMutation.isPending ||
-                   checkEmailMutation.isPending;
-
   return (
-    <Modal 
-      isOpen={isOpen} 
-      onClose={handleClose}
-      size="lg"
-    >
-      <div className={`transition-opacity duration-300 ${isLoading ? 'opacity-50 pointer-events-none' : ''}`}>
-        {step === 'form' && (
-          <FormStep
-            formData={formData}
-            formErrors={formErrors}
-            emailError={emailError}
-            categoriesData={categoriesData}
-            categoriesLoading={categoriesLoading}
-            onFormDataChange={handleFormDataChange}
-            onSubmit={handleFormSubmit}
-          />
-        )}
+    <Modal isOpen={isOpen} onClose={handleModalClose} title="">
+      {step === 'form' && (
+        <FormStep
+          formData={formData}
+          formErrors={formErrors}
+          emailError={emailError}
+          categoriesData={categoriesData}
+          categoriesLoading={categoriesLoading}
+          onFormDataChange={handleFormDataChange}
+          onVerifyEmail={handleVerifyEmail}
+          onEmailChange={handleEmailChange}
+          checkEmailMutation={checkEmailMutation}
+          emailVerificationMutation={emailVerificationMutation}
+        />
+      )}
 
-        {step === 'verification' && (
-          <VerificationStep
-            formData={formData}
-            formErrors={formErrors}
-            verificationCode={verificationCode}
-            onVerificationCodeChange={setVerificationCode}
-            onVerifyCode={handleVerifyCode}
-            onBackToForm={handleBackToForm}
-          />
-        )}
+      {step === 'verification' && (
+        <VerificationStep
+          formData={formData}
+          formErrors={formErrors}
+          verificationCode={verificationCode}
+          onVerificationCodeChange={setVerificationCode}
+          onVerifyCode={handleVerifyCode}
+          onResendEmail={handleVerifyEmail}
+          verifyCodeMutation={verifyCodeMutation}
+          createSubscriptionMutation={createSubscriptionMutation}
+          checkEmailMutation={checkEmailMutation}
+          emailVerificationMutation={emailVerificationMutation}
+        />
+      )}
 
-        {step === 'success' && (
-          <SuccessStep
-            formData={formData}
-            onClose={handleClose}
-          />
-        )}
-      </div>
-
-      {isLoading && (
-        <div className="absolute inset-0 flex items-center justify-center bg-white bg-opacity-50">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-brand-500"></div>
-        </div>
+      {step === 'success' && (
+        <SuccessStep
+          formData={formData}
+          onClose={handleModalClose}
+        />
       )}
     </Modal>
   );
