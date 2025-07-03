@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { QuizData, AnswerResult } from './types';
 
 interface QuizResultSectionProps {
@@ -26,6 +26,34 @@ const QuizResultSection: React.FC<QuizResultSectionProps> = ({
   isStreamingComplete,
   isCorrectFromAI
 }) => {
+  // 로딩 메시지 순환을 위한 상태
+  const loadingMessages = [
+    'AI가 깊은 명상에 들어갔어요!',
+    '국어사전을 뒤지고 있어요!',
+    '커피 한잔 마시고 올게요?!',
+    'AI야, 너는 계획이 다 있구나?',
+    '우주의 기운을 모으는 중입니다..',
+    '답변이 야무지셔서 조금 걸려요!',
+    '답변이 좋은데요-?',
+    '넷플릭스 보면서 답변 생성 중이에요!'
+  ];
+  const [currentMessageIndex, setCurrentMessageIndex] = useState(0);
+
+  // feedbackResult가 있을 때 메시지 순환
+  useEffect(() => {
+    if (feedbackResult && resultChars.length === 0) {
+      const interval = setInterval(() => {
+        setCurrentMessageIndex((prev) => {
+          let newIndex;
+          do {
+            newIndex = Math.floor(Math.random() * loadingMessages.length);
+          } while (newIndex === prev && loadingMessages.length > 1); // 연속으로 같은 메시지 방지
+          return newIndex;
+        });
+      }, 800);
+      return () => clearInterval(interval);
+    }
+  }, [feedbackResult, resultChars.length, loadingMessages.length]);
   return (
     <div className="max-w-4xl mx-auto mb-8">
       {/* 정답/오답 메시지 - 객관식에만 표시 */}
@@ -69,10 +97,10 @@ const QuizResultSection: React.FC<QuizResultSectionProps> = ({
           <div className="p-4 bg-blue-50 rounded-xl mb-6">
             <h4 className="text-lg font-bold text-gray-900 mb-2">AI 피드백</h4>
             {(isAiFeedbackLoading && !feedbackResult) || (feedbackResult && resultChars.length === 0) ? (
-              <div className="flex items-center space-x-3">
+              <div className="flex items-center space-x-3 justify-center">
                 <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-blue-600"></div>
                 <p className="text-blue-700">
-                  {!feedbackResult ? 'AI가 피드백을 생성하고 있습니다...' : 'AI 피드백을 준비하고 있습니다...'}
+                  {!feedbackResult ? 'AI가 피드백을 생성하고 있습니다...' : loadingMessages[currentMessageIndex]}
                 </p>
               </div>
             ) : (
