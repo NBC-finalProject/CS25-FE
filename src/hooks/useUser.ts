@@ -1,15 +1,17 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { userAPI } from '../utils/api';
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { userAPI } from "../utils/api";
 
 // 사용자 관련 Query Keys
 export const userKeys = {
-  all: ['user'] as const,
-  profile: () => [...userKeys.all, 'profile'] as const,
-  profileSubscription: () => [...userKeys.all, 'profileSubscription'] as const,
-  quizHistory: (page: number, size: number) => [...userKeys.all, 'quizHistory', page, size] as const,
-  ranking: (page: number, size: number) => [...userKeys.all, 'ranking', page, size] as const,
-  wrongQuiz: (page?: number) => [...userKeys.all, 'wrongQuiz', page] as const,
-  correctRate: () => [...userKeys.all, 'correctRate'] as const,
+  all: ["user"] as const,
+  profile: () => [...userKeys.all, "profile"] as const,
+  profileSubscription: () => [...userKeys.all, "profileSubscription"] as const,
+  quizHistory: (page: number, size: number) =>
+    [...userKeys.all, "quizHistory", page, size] as const,
+  ranking: (page: number, size: number) =>
+    [...userKeys.all, "ranking", page, size] as const,
+  wrongQuiz: (page?: number) => [...userKeys.all, "wrongQuiz", page] as const,
+  correctRate: () => [...userKeys.all, "correctRate"] as const,
 };
 
 // 사용자 프로필 조회
@@ -82,4 +84,3 @@ export const useUserCorrectRate = (enabled: boolean = true) => {
     enabled,
   });
 };
-

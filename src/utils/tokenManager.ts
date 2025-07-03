@@ -1,4 +1,4 @@
-import Cookies from 'js-cookie';
+import Cookies from "js-cookie";
 
 export interface TokenManager {
   getAccessToken(): string | undefined;
@@ -24,7 +24,7 @@ class TokenEventManager {
   }
 
   notify(hasTokens: boolean) {
-    this.listeners.forEach(callback => callback(hasTokens));
+    this.listeners.forEach((callback) => callback(hasTokens));
   }
 }
 
@@ -34,8 +34,8 @@ const tokenEventManager = new TokenEventManager();
 export { tokenEventManager };
 
 class CookieTokenManager implements TokenManager {
-  private readonly ACCESS_TOKEN_KEY = 'accessToken';
-  private readonly REFRESH_TOKEN_KEY = 'refreshToken';
+  private readonly ACCESS_TOKEN_KEY = "accessToken";
+  private readonly REFRESH_TOKEN_KEY = "refreshToken";
 
   getAccessToken(): string | undefined {
     // HttpOnly 쿠키는 JavaScript에서 접근할 수 없으므로 undefined 반환
@@ -61,12 +61,12 @@ class CookieTokenManager implements TokenManager {
   async checkAuthStatus(): Promise<boolean> {
     try {
       // 동적 import로 circular dependency 해결
-      const { authAPI } = await import('./api');
+      const { authAPI } = await import("./api");
       const response = await authAPI.checkAuthStatus();
-      
+
       // 응답 구조: {"httpCode":200,"data":boolean}
       const isAuthenticated = (response as any)?.data === true;
-      
+
       return isAuthenticated;
     } catch (error) {
       return false;

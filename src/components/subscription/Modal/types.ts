@@ -13,7 +13,7 @@ export interface FormErrors {
   subscription?: string;
 }
 
-export type Step = 'form' | 'verification' | 'success';
+export type Step = "form" | "verification" | "success";
 
 export interface SubscriptionModalProps {
   isOpen: boolean;

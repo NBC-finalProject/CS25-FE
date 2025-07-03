@@ -1,9 +1,9 @@
-import { ReactNode } from 'react';
-import { useModalContext, ModalConfig } from '../contexts/ModalContext';
-import LoginForm from '../components/common/LoginForm';
+import { ReactNode } from "react";
+import { useModalContext, ModalConfig } from "../contexts/ModalContext";
+import LoginForm from "../components/common/LoginForm";
 
 interface UseModalReturn {
-  openModal: (config: Omit<ModalConfig, 'id'>) => string;
+  openModal: (config: Omit<ModalConfig, "id">) => string;
   closeModal: (id: string) => void;
   closeAllModals: () => void;
   modals: ModalConfig[];
@@ -27,7 +27,7 @@ export const useLoginModal = () => {
   const openLoginModal = () => {
     return openModal({
       content: <LoginForm />,
-      size: 'md',
+      size: "md",
     });
   };
 
@@ -39,9 +39,9 @@ export const useSubscriptionModal = () => {
 
   const openSubscriptionModal = () => {
     return openModal({
-      title: '',
+      title: "",
       content: <div>구독 모달이 여기에 들어갑니다</div>,
-      size: 'lg',
+      size: "lg",
     });
   };
 
@@ -56,10 +56,10 @@ export const useCustomModal = () => {
     title: string,
     content: ReactNode,
     options?: {
-      size?: 'sm' | 'md' | 'lg' | 'xl';
+      size?: "sm" | "md" | "lg" | "xl";
       closable?: boolean;
       onClose?: () => void;
-    }
+    },
   ) => {
     return openModal({
       title,

@@ -1,12 +1,13 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { quizAPI } from '../utils/api';
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { quizAPI } from "../utils/api";
 
 // 퀴즈 관련 Query Keys
 export const quizKeys = {
-  all: ['quiz'] as const,
-  categories: () => [...quizKeys.all, 'categories'] as const,
-  today: () => [...quizKeys.all, 'today'] as const,
-  history: (email: string, token: string) => [...quizKeys.all, 'history', email, token] as const,
+  all: ["quiz"] as const,
+  categories: () => [...quizKeys.all, "categories"] as const,
+  today: () => [...quizKeys.all, "today"] as const,
+  history: (email: string, token: string) =>
+    [...quizKeys.all, "history", email, token] as const,
 };
 
 // 퀴즈 카테고리 목록 조회
@@ -38,8 +39,13 @@ export const useSubmitQuizAnswer = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ quizId, answer }: { quizId: string; answer: number | string }) => 
-      quizAPI.submitQuizAnswer(quizId, answer),
+    mutationFn: ({
+      quizId,
+      answer,
+    }: {
+      quizId: string;
+      answer: number | string;
+    }) => quizAPI.submitQuizAnswer(quizId, answer),
     onSuccess: () => {
       // 제출 후 히스토리 캐시 무효화
       queryClient.invalidateQueries({ queryKey: quizKeys.all });
@@ -48,7 +54,11 @@ export const useSubmitQuizAnswer = () => {
 };
 
 // 사용자 퀴즈 히스토리 조회
-export const useQuizHistory = (email: string, token: string, enabled: boolean = true) => {
+export const useQuizHistory = (
+  email: string,
+  token: string,
+  enabled: boolean = true,
+) => {
   return useQuery({
     queryKey: quizKeys.history(email, token),
     queryFn: () => quizAPI.getUserQuizHistory(email, token),

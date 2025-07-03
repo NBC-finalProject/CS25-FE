@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap");
 
 @tailwind base;
 @tailwind components;
@@ -6,82 +6,93 @@
 
 /* Custom animations */
 @keyframes reveal-up {
-  0% { 
-    opacity: 0; 
+  0% {
+    opacity: 0;
     transform: translateY(80%);
     filter: blur(0.3rem);
   }
-  100% { 
-    opacity: 1; 
+  100% {
+    opacity: 1;
     transform: translateY(0);
     filter: blur(0);
   }
 }
 
 @keyframes reveal-down {
-  0% { 
-    opacity: 0; 
+  0% {
+    opacity: 0;
     transform: translateY(-80%);
     filter: blur(0.3rem);
   }
-  100% { 
-    opacity: 1; 
+  100% {
+    opacity: 1;
     transform: translateY(0);
     filter: blur(0);
   }
 }
 
 @keyframes text-reveal-up {
-  0% { 
-    opacity: 0; 
+  0% {
+    opacity: 0;
     transform: translateY(20px);
     filter: blur(0.2rem);
   }
-  100% { 
-    opacity: 1; 
+  100% {
+    opacity: 1;
     transform: translateY(0);
     filter: blur(0);
   }
 }
 
 @keyframes text-reveal-down {
-  0% { 
-    opacity: 0; 
+  0% {
+    opacity: 0;
     transform: translateY(-20px);
     filter: blur(0.2rem);
   }
-  100% { 
-    opacity: 1; 
+  100% {
+    opacity: 1;
     transform: translateY(0);
     filter: blur(0);
   }
 }
 
 @keyframes wave-reveal {
-  0% { 
-    opacity: 0; 
+  0% {
+    opacity: 0;
     filter: blur(0.3rem);
   }
-  50% { 
-    opacity: 0.5; 
+  50% {
+    opacity: 0.5;
     filter: blur(0.15rem);
   }
-  100% { 
-    opacity: 1; 
+  100% {
+    opacity: 1;
     filter: blur(0);
   }
 }
 
 body {
   margin: 0;
-  font-family: 'Pretendard Variable', 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+  font-family:
+    "Pretendard Variable",
+    "Pretendard",
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    "Roboto",
+    "Oxygen",
+    "Ubuntu",
+    "Cantarell",
+    "Fira Sans",
+    "Droid Sans",
+    "Helvetica Neue",
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
 code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-    monospace;
+  font-family:
+    source-code-pro, Menlo, Monaco, Consolas, "Courier New", monospace;
 }

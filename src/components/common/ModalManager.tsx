@@ -1,6 +1,6 @@
-import React from 'react';
-import { useModalContext } from '../../contexts/ModalContext';
-import Modal from './Modal';
+import React from "react";
+import { useModalContext } from "../../contexts/ModalContext";
+import Modal from "./Modal";
 
 const ModalManager: React.FC = () => {
   const { modals, closeModal } = useModalContext();

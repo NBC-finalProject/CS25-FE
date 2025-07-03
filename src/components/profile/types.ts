@@ -5,4 +5,4 @@ export interface WrongQuizDto {
   commentary: string;
 }
 
-export type TabType = 'overview' | 'wrong-quiz' | 'correct-rate';
+export type TabType = "overview" | "wrong-quiz" | "correct-rate";

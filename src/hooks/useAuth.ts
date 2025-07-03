@@ -1,12 +1,12 @@
-import { useState, useEffect, useCallback } from 'react';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { authAPI } from '../utils/api';
-import { tokenManager, tokenEventManager } from '../utils/tokenManager';
+import { useState, useEffect, useCallback } from "react";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { authAPI } from "../utils/api";
+import { tokenManager, tokenEventManager } from "../utils/tokenManager";
 
 // 인증 관련 Query Keys
 export const authKeys = {
-  all: ['auth'] as const,
-  user: () => [...authKeys.all, 'user'] as const,
+  all: ["auth"] as const,
+  user: () => [...authKeys.all, "user"] as const,
 };
 
 // 로그인
@@ -14,7 +14,7 @@ export const useLogin = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ email, password }: { email: string; password: string }) => 
+    mutationFn: ({ email, password }: { email: string; password: string }) =>
       authAPI.login(email, password),
     onSuccess: (data: any) => {
       // 로그인 성공 시 토큰 저장
@@ -34,7 +34,7 @@ export const useRegister = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ email, password }: { email: string; password: string }) => 
+    mutationFn: ({ email, password }: { email: string; password: string }) =>
       authAPI.register(email, password),
     onSuccess: (data: any) => {
       // 회원가입 성공 시 토큰 저장 (만약 회원가입시에도 토큰이 발급된다면)
@@ -68,7 +68,7 @@ export const useLogout = () => {
       queryClient.clear();
     },
     onError: (error) => {
-      console.error('❌ Logout failed:', error);
+      console.error("❌ Logout failed:", error);
       // 에러가 발생해도 로컬 상태는 초기화 (안전장치)
       tokenManager.clearTokens();
       queryClient.clear();
@@ -99,7 +99,7 @@ export const useAuth = () => {
       });
       return hasTokens;
     } catch (error) {
-      console.error('Auth check failed:', error);
+      console.error("Auth check failed:", error);
       setAuthState({
         isAuthenticated: false,
         isLoading: false,
@@ -115,7 +115,7 @@ export const useAuth = () => {
       try {
         // API를 통한 인증 상태 확인
         const hasTokens = await tokenManager.checkAuthStatus();
-        
+
         setAuthState({
           isAuthenticated: hasTokens,
           isLoading: false,
@@ -126,7 +126,7 @@ export const useAuth = () => {
           tokenEventManager.notify(true);
         }
       } catch (error) {
-        console.error('Initial auth check failed:', error);
+        console.error("Initial auth check failed:", error);
         setAuthState({
           isAuthenticated: false,
           isLoading: false,
@@ -168,8 +168,8 @@ export const useAuth = () => {
       debouncedCheckAuth();
     };
 
-    document.addEventListener('visibilitychange', handleVisibilityChange);
-    window.addEventListener('focus', handleFocus);
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+    window.addEventListener("focus", handleFocus);
 
     // 클린업
     return () => {
@@ -178,14 +178,14 @@ export const useAuth = () => {
         clearTimeout(debounceTimer);
       }
       tokenManager.offTokenChange(handleTokenChange);
-      document.removeEventListener('visibilitychange', handleVisibilityChange);
-      window.removeEventListener('focus', handleFocus);
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+      window.removeEventListener("focus", handleFocus);
     };
   }, [checkAuth]);
 
   // 인증 상태 업데이트 (토큰 갱신 시나리오에서 유용)
   const updateAuthState = useCallback((isAuthenticated: boolean) => {
-    setAuthState(prev => ({
+    setAuthState((prev) => ({
       ...prev,
       isAuthenticated,
     }));
