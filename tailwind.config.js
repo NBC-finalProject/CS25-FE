@@ -182,6 +182,14 @@ module.exports = {
             boxShadow: "0 0 20px 8px rgba(37, 99, 235, 0.3)",
           },
         },
+        "slideInX": {
+          "0%": {
+            transform: "scaleX(0)",
+          },
+          "100%": {
+            transform: "scaleX(1)",
+          },
+        },
       },
       animation: {
         "fade-in-smooth": "fade-in-smooth 0.6s ease-out forwards",
@@ -195,6 +203,7 @@ module.exports = {
         sparkle: "sparkle 1.5s ease-in-out infinite",
         "text-shimmer": "text-shimmer 3s ease-in-out infinite",
         "subscribe-pulse": "subscribe-pulse 2s ease-in-out infinite",
+        "slideInX": "slideInX 1.2s ease-out forwards",
       },
     },
   },
