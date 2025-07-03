@@ -66,10 +66,17 @@ const TodayQuizSection: React.FC = () => {
 
   // SSE 연결 정리 - 컴포넌트 언마운트 시
   useEffect(() => {
-    return () => {
+    const handleBeforeUnload = () => {
       cleanup();
     };
-  }, [cleanup]);
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+      cleanup();
+    };
+  }, [cleanup]); // cleanup을 다시 dependency로 추가 (이제 useCallback으로 메모이제이션됨)
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

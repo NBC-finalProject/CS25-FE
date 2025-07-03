@@ -164,60 +164,87 @@ export const quizAPI = {
   // AI 피드백 SSE 스트리밍 (주관식)
   streamAiFeedback: (answerId: string, onData: (data: string) => void, onComplete: () => void, onError: (error: Event) => void) => {
     let isCompleted = false;
+    let eventSource: EventSource | null = null;
     
-    const eventSource = new EventSource(`${apiUrl}/quizzes/${answerId}/feedback`, { 
-      withCredentials: true
-      // EventSource는 자동으로 Accept: text/event-stream 헤더 설정
-    });
-    
-    eventSource.onmessage = (event) => {
-      if (isCompleted) return;
+    try {
+      eventSource = new EventSource(`${apiUrl}/quizzes/${answerId}/feedback`, { 
+        withCredentials: true
+        // EventSource는 자동으로 Accept: text/event-stream 헤더 설정
+      });
       
-      // [종료] 메시지를 받으면 정상 종료
-      if (event.data === '[종료]' || event.data === '[완료]' || event.data === 'END') {
-        isCompleted = true;
-        eventSource.close();
-        onComplete();
-        return;
-      }
+      eventSource.onmessage = (event) => {
+        if (isCompleted) return;
+        
+        // [종료] 메시지를 받으면 정상 종료
+        if (event.data === '[종료]' || event.data === '[완료]' || event.data === 'END') {
+          isCompleted = true;
+          if (eventSource) {
+            eventSource.close();
+            eventSource = null;
+          }
+          onComplete();
+          return;
+        }
+        
+        onData(event.data);
+      };
       
-      onData(event.data);
-    };
-    
-    eventSource.onerror = (error) => {
-      if (isCompleted) return; // 이미 정상 완료된 경우 에러 무시
+      eventSource.onerror = (error) => {
+        if (isCompleted) return; // 이미 정상 완료된 경우 에러 무시
+        
+        console.log('SSE 연결 에러 발생!', new Date().toISOString());
+        console.log('SSE 연결 에러:', error);
+        isCompleted = true;
+        if (eventSource) {
+          eventSource.close();
+          eventSource = null;
+        }
+        onError(error);
+      };
       
-      console.log('SSE 연결 에러:', error);
-      eventSource.close();
-      onError(error);
-    };
-    
-    eventSource.addEventListener('complete', () => {
-      if (!isCompleted) {
-        isCompleted = true;
-        eventSource.close();
-        onComplete();
-      }
-    });
-    
-    // 타임아웃 설정 (선택사항 - 너무 오래 걸리면 자동 종료)
-    const timeout = setTimeout(() => {
-      if (!isCompleted) {
-        console.log('SSE 스트리밍 타임아웃');
-        isCompleted = true;
-        eventSource.close();
-        onError(new Event('timeout'));
-      }
-    }, 60000); // 60초 타임아웃
-    
-    // 정리 함수 반환
-    return {
-      close: () => {
-        isCompleted = true;
-        clearTimeout(timeout);
-        eventSource.close();
-      }
-    };
+      eventSource.addEventListener('complete', () => {
+        if (!isCompleted) {
+          isCompleted = true;
+          if (eventSource) {
+            eventSource.close();
+            eventSource = null;
+          }
+          onComplete();
+        }
+      });
+      
+      // 타임아웃 설정 (선택사항 - 너무 오래 걸리면 자동 종료)
+      const timeout = setTimeout(() => {
+        if (!isCompleted) {
+          console.log('SSE 스트리밍 타임아웃');
+          isCompleted = true;
+          if (eventSource) {
+            eventSource.close();
+            eventSource = null;
+          }
+          onError(new Event('timeout'));
+        }
+      }, 60000); // 60초 타임아웃
+      
+      // 정리 함수 반환
+      return {
+        close: () => {
+          isCompleted = true;
+          clearTimeout(timeout);
+          if (eventSource) {
+            eventSource.close();
+            eventSource = null;
+          }
+        }
+      };
+    } catch (error) {
+      console.error('SSE 연결 생성 실패:', error);
+      console.error('에러 상세:', error);
+      onError(error as Event);
+      return {
+        close: () => {}
+      };
+    }
   },
 };
 

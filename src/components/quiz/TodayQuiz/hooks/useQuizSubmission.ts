@@ -1,4 +1,4 @@
-import { useState, useRef, createElement } from 'react';
+import { useState, useRef, createElement, useCallback } from 'react';
 import { quizAPI } from '../../../../utils/api';
 import { QuizData, AnswerResult } from '../types';
 import DuplicateAnswerModal from '../../../common/DuplicateAnswerModal';
@@ -271,6 +271,8 @@ export const useQuizSubmission = () => {
             // onError: 에러 처리
             (error: Event) => {
               console.error('AI 피드백 스트리밍 실패:', error);
+              console.error('에러 타입:', error.type);
+              console.error('에러 대상:', error.target);
               
               const errorResult: AnswerResult = {
                 isCorrect: false,
@@ -308,12 +310,12 @@ export const useQuizSubmission = () => {
     }
   };
 
-  const cleanup = () => {
-    if (sseConnectionRef.current) {
+  const cleanup = useCallback(() => {
+    if (sseConnectionRef.current) {;
       sseConnectionRef.current.close();
       sseConnectionRef.current = null;
     }
-  };
+  }, []);
 
   return {
     isSubmitted,

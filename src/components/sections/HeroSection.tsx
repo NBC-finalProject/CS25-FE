@@ -44,7 +44,7 @@ const HeroSection: React.FC<HeroSectionProps> = ({ onSubscribeClick }) => {
                 <div className="w-6 h-6 sm:w-8 sm:h-8 bg-gradient-to-r from-navy-400 to-navy-500 rounded-full border-2 border-white"></div>
                 <div className="w-6 h-6 sm:w-8 sm:h-8 bg-gradient-to-r from-brand-500 to-navy-500 rounded-full border-2 border-white"></div>
               </div>
-              <span className="text-center sm:text-left">이미 <strong className="text-gray-800">1,000+</strong> 취준생이 사용 중</span>
+              <span className="text-center sm:text-left">이미 <strong className="text-gray-800">10+</strong> 취준생이 사용 중</span>
             </div>
           </div>
         </div>
