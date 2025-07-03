@@ -1,12 +1,34 @@
-import React from "react";
+import React, { useEffect, useMemo, useState } from "react";
+import { Sparkle } from "lucide-react";
+import { loadFull } from "tsparticles";
 import Container from "../common/Container";
 import Section from "../common/Section";
+import { subscribeButtonParticleOptions } from "../../utils/particleConfig";
+
+import Particles, { initParticlesEngine } from "@tsparticles/react";
+
 
 interface HeroSectionProps {
   onSubscribeClick: () => void;
 }
 
 const HeroSection: React.FC<HeroSectionProps> = ({ onSubscribeClick }) => {
+  const [particleState, setParticlesReady] = useState<"loaded" | "ready">();
+  const [isHovering, setIsHovering] = useState(false);
+
+  useEffect(() => {
+    initParticlesEngine(async (engine) => {
+      await loadFull(engine);
+    }).then(() => {
+      setParticlesReady("loaded");
+    });
+  }, []);
+
+  const modifiedOptions = useMemo(() => {
+    const options = { ...subscribeButtonParticleOptions };
+    options.autoPlay = isHovering;
+    return options;
+  }, [isHovering]);
   return (
     <Section className="to-brand-50 bg-gradient-to-br from-gray-50 via-blue-50 pb-20 pt-16 text-center sm:pb-32 sm:pt-20">
       <Container>
@@ -27,22 +49,64 @@ const HeroSection: React.FC<HeroSectionProps> = ({ onSubscribeClick }) => {
             메일로 만나보세요!
           </h1>
 
-          <p className="mx-auto mb-8 max-w-2xl px-4 text-base leading-relaxed text-gray-700 sm:mb-12 sm:px-0 sm:text-lg md:text-xl lg:text-2xl">
-            AI가 매일 새로운 CS 문제를 생성하고 상세히 해설
-            <br className="hidden sm:block" />
-            <span className="block text-sm text-gray-600 sm:inline sm:text-base md:text-lg">
-              개인 수준에 맞는 알고리즘, 자료구조, 운영체제 등
-            </span>
-          </p>
+          <div className="mx-auto mb-8 max-w-3xl px-4 sm:mb-12 sm:px-0">
+            {/* 메인 설명 텍스트 */}
+            <div className="mb-6 text-center">
+              <p className="bg-gradient-to-r from-gray-800 via-gray-700 to-gray-600 bg-clip-text text-lg font-medium leading-relaxed text-transparent sm:text-xl md:text-2xl lg:text-3xl">
+                <span className="relative inline-block">
+                  <span className="from-brand-600 to-navy-600 bg-gradient-to-r bg-clip-text font-bold text-transparent">
+                    AI가 매일 새로운 CS 문제를 생성
+                  </span>
+                  <span className="from-brand-400 to-navy-400 absolute -bottom-1 left-0 h-0.5 w-full bg-gradient-to-r opacity-60"></span>
+                </span>
+                <br className="block sm:hidden" />
+                <span className="hidden sm:inline">하고 상세히 해설</span>
+                <span className="mt-1 block sm:hidden">하고 상세히 해설</span>
+              </p>
+            </div>
+
+            {/* 설명 텍스트 */}
+            <p className="mt-4 text-center text-sm text-gray-500 sm:mt-6 sm:text-base">
+              개인 수준에 맞는 맞춤형 문제로
+              <br className="block sm:hidden" />
+              <span className="hidden sm:inline"> </span>효율적인 학습을
+              경험하세요!
+            </p>
+          </div>
 
           <div className="flex flex-col items-center justify-center gap-4 sm:flex-row sm:gap-6">
             <button
               onClick={onSubscribeClick}
-              className="from-brand-500 to-brand-600 hover:from-brand-600 hover:to-brand-700 group w-full max-w-xs rounded-full bg-gradient-to-r px-6 py-3 text-base font-semibold text-white transition-all duration-300 hover:scale-105 hover:shadow-xl sm:w-auto sm:px-8 sm:py-4 sm:text-lg"
+              onMouseEnter={() => setIsHovering(true)}
+              onMouseLeave={() => setIsHovering(false)}
+              className="animate-subscribe-pulse from-brand-500 to-brand-600 hover:from-brand-600 hover:to-brand-700 focus:from-brand-600 focus:to-brand-700 active:from-brand-700 active:to-brand-800 focus:ring-brand-300 group relative max-w-sm overflow-hidden rounded-full bg-gradient-to-r px-6 py-3 text-base font-semibold text-white transition-all duration-500 hover:scale-105 hover:animate-none hover:shadow-2xl focus:outline-none focus:ring-4 active:scale-95 sm:max-w-none sm:px-8 sm:py-4 sm:text-lg"
             >
-              <span className="flex items-center justify-center">
-                무료 구독하기
+              {/* 반짝이는 애니메이션 효과 */}
+              <div className="absolute inset-0 -z-10 bg-gradient-to-r from-transparent via-white/20 to-transparent opacity-0 transition-opacity duration-1000 group-hover:animate-pulse group-hover:opacity-100"></div>
+
+              {/* 물결 효과 */}
+              <div className="absolute inset-0 -z-10 rounded-full bg-white/10 opacity-0 transition-all duration-700 group-hover:scale-150 group-hover:opacity-100"></div>
+
+              <span className="relative flex items-center justify-center gap-2">
+                <Sparkle className="group-hover:animate-sparkle absolute bottom-2 left-2 z-20 h-2 w-2 rotate-12 fill-white opacity-0 transition-all duration-300 group-hover:opacity-100" />
+                <Sparkle className="group-hover:animate-sparkle absolute left-1 top-2 h-1.5 w-1.5 -rotate-12 fill-white opacity-0 transition-all duration-300 group-hover:opacity-100" />
+                <Sparkle className="group-hover:animate-sparkle absolute right-2 top-2 h-1.5 w-1.5 fill-white opacity-0 transition-all duration-300 group-hover:opacity-100" />
+                <span className="group-hover:animate-text-shimmer bg-gradient-to-r from-white via-white/90 to-white bg-[length:200%_auto] bg-clip-text transition-all duration-300 group-hover:tracking-wide">
+                  무료 구독하기
+                </span>
               </span>
+
+              {/* 파티클 효과 */}
+              {!!particleState && (
+                <Particles
+                  id="subscribe-particles"
+                  className={`pointer-events-none absolute -bottom-4 -left-4 -right-4 -top-4 z-0 opacity-0 transition-opacity duration-500 ${particleState === "ready" ? "group-hover:opacity-100" : ""}`}
+                  particlesLoaded={async () => {
+                    setParticlesReady("ready");
+                  }}
+                  options={modifiedOptions}
+                />
+              )}
             </button>
 
             <div className="flex items-center text-xs text-gray-600 sm:text-sm">
