@@ -1,6 +1,7 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, createElement } from 'react';
 import { quizAPI } from '../../../../utils/api';
 import { QuizData, AnswerResult } from '../types';
+import DuplicateAnswerModal from '../../../common/DuplicateAnswerModal';
 
 export const useQuizSubmission = () => {
   const [isSubmitted, setIsSubmitted] = useState(false);
@@ -54,13 +55,13 @@ export const useQuizSubmission = () => {
         // 중복 답변인 경우 모달 표시하고 기존 답안 결과 보여주기
         openModal({
           title: '이미 답변한 문제입니다',
-          content: '이전에 답변한 내용을 확인해보세요!',
+          content: createElement(DuplicateAnswerModal),
           size: 'sm'
         });
         
         // 중복 답변인 경우 기존 답안 결과 표시
         const duplicateResult: AnswerResult = {
-          isCorrect: (responseData as any)?.correct || false,
+          isCorrect: Boolean((responseData as any)?.isCorrect),
           answer: (responseData as any)?.answer || displayQuiz.answer || '',
           commentary: (responseData as any)?.commentary || displayQuiz.commentary,
           aiFeedback: (responseData as any)?.aiFeedback
@@ -120,8 +121,10 @@ export const useQuizSubmission = () => {
             evaluateData = evaluateResponse;
           }
           
+          console.log('객관식 평가 응답:', evaluateData); // 디버깅용
+          
           const result: AnswerResult = {
-            isCorrect: (evaluateData as any)?.correct || false,
+            isCorrect: Boolean((evaluateData as any)?.isCorrect),
             answer: (evaluateData as any)?.answer || displayQuiz.answer || '',
             commentary: (evaluateData as any)?.commentary || displayQuiz.commentary
           };
@@ -133,7 +136,7 @@ export const useQuizSubmission = () => {
           
           // 평가 API 실패 시 응답 데이터 사용
           const fallbackResult: AnswerResult = {
-            isCorrect: (responseData as any)?.correct || false,
+            isCorrect: Boolean((responseData as any)?.isCorrect),
             answer: (responseData as any)?.answer || displayQuiz.answer || '',
             commentary: (responseData as any)?.commentary || displayQuiz.commentary
           };
@@ -155,7 +158,7 @@ export const useQuizSubmission = () => {
           }
           
           const result: AnswerResult = {
-            isCorrect: (evaluateData as any)?.correct || false,
+            isCorrect: Boolean((evaluateData as any)?.isCorrect),
             answer: (evaluateData as any)?.answer || displayQuiz.answer || '',
             commentary: (evaluateData as any)?.commentary || displayQuiz.commentary
           };
@@ -167,7 +170,7 @@ export const useQuizSubmission = () => {
           
           // 평가 API 실패 시 응답 데이터 사용
           const fallbackResult: AnswerResult = {
-            isCorrect: (responseData as any)?.correct || false,
+            isCorrect: Boolean((responseData as any)?.isCorrect),
             answer: (responseData as any)?.answer || displayQuiz.answer || '',
             commentary: (responseData as any)?.commentary || displayQuiz.commentary
           };
@@ -178,7 +181,7 @@ export const useQuizSubmission = () => {
       } else if (displayQuiz.quizType === 'SUBJECTIVE') {
         // 서술형: 응답 데이터로 초기 결과 설정 후 AI 피드백
         const initialResult: AnswerResult = {
-          isCorrect: (responseData as any)?.correct || false,
+          isCorrect: Boolean((responseData as any)?.isCorrect),
           answer: (responseData as any)?.answer || displayQuiz.answer || '',
           commentary: (responseData as any)?.commentary || displayQuiz.commentary
         };
