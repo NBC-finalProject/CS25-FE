@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { getSubCategoryLabel } from "../../../utils/categoryUtils";
 
 interface CorrectRateData {
@@ -16,6 +16,14 @@ const CorrectRateTab: React.FC<CorrectRateTabProps> = ({
   correctRateData,
   correctRateLoading,
 }) => {
+  const [isVisible, setIsVisible] = useState(false);
+
+  useEffect(() => {
+    if (correctRateData) {
+      const timer = setTimeout(() => setIsVisible(true), 400);
+      return () => clearTimeout(timer);
+    }
+  }, [correctRateData]);
   if (correctRateLoading) {
     return (
       <div className="py-8 text-center">
@@ -45,8 +53,9 @@ const CorrectRateTab: React.FC<CorrectRateTabProps> = ({
         nonZeroRates.length
       : 0;
 
+  // 0.0인 값들을 제외하고 개선 필요 카테고리 계산 (40% 미만)
   const needImprovementCategories = rates.filter(
-    (rate) => Number(rate) < 60,
+    (rate) => Number(rate) > 0 && Number(rate) < 40,
   ).length;
 
   return (
@@ -208,12 +217,11 @@ const CorrectRateTab: React.FC<CorrectRateTabProps> = ({
 
                     {/* 메인 바 */}
                     <div
-                      className="relative h-full overflow-hidden rounded-full bg-gradient-to-r from-blue-400 to-blue-600 transition-all duration-1000 ease-out"
+                      className="relative h-full overflow-hidden rounded-full bg-gradient-to-r from-blue-400 to-blue-600 transition-all duration-[2500ms] ease-out"
                       style={{
-                        width: `${Math.max(rateNum, 3)}%`,
+                        width: isVisible ? `${Math.max(rateNum, 3)}%` : "0%",
                         opacity: opacity,
-                        animationDelay: `${delay}ms`,
-                        animation: `slideInX 1.2s ease-out ${delay}ms forwards`,
+                        transitionDelay: `${delay}ms`,
                         transformOrigin: "left center",
                       }}
                     >
@@ -303,7 +311,7 @@ const CorrectRateTab: React.FC<CorrectRateTabProps> = ({
               {needImprovementCategories}
             </div>
             <div className="text-sm font-medium text-red-800">개선 필요</div>
-            <div className="mt-1 text-xs text-red-600">(60% 미만)</div>
+            <div className="mt-1 text-xs text-red-600">(40% 미만)</div>
           </div>
         </div>
       </div>
