@@ -185,7 +185,7 @@ export const quizAPI = {
 
     try {
       eventSource = new EventSource(`${apiUrl}/quizzes/${answerId}/feedback`, {
-        withCredentials: true,
+        //withCredentials: true,
         // EventSource는 자동으로 Accept: text/event-stream 헤더 설정
       });
 
