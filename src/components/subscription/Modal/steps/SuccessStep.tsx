@@ -94,7 +94,10 @@ const SuccessStep: React.FC<SuccessStepProps> = ({ formData, onClose }) => {
       </div>
 
       <button
-        onClick={onClose}
+        onClick={() => {
+          onClose();
+          window.location.reload();
+        }}
         className="from-brand-500 to-brand-600 hover:from-brand-600 hover:to-brand-700 w-full rounded-lg bg-gradient-to-r px-4 py-2 text-white shadow-sm transition-all duration-300"
       >
         확인
