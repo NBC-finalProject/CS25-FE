@@ -12,6 +12,7 @@ import Footer from "./components/common/Footer";
 import SubscriptionModal from "./components/common/SubscriptionModal";
 import { ModalProvider } from "./contexts/ModalContext";
 import ModalManager from "./components/common/ModalManager";
+import NotFoundPage from "./components/common/NotFoundPage";
 import "./App.css";
 import ProfileSection from "./components/sections/ProfileSection";
 
@@ -55,6 +56,7 @@ function App() {
                 element={<SubscriptionEditSection />}
               />
               <Route path="/profile" element={<ProfileSection />} />
+              <Route path="*" element={<NotFoundPage />} />
             </Routes>
             <Footer />
             <SubscriptionModal
