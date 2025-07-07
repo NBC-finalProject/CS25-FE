@@ -141,7 +141,7 @@ const HeroSection: React.FC<HeroSectionProps> = ({ onSubscribeClick }) => {
                 <div className="from-brand-500 to-navy-500 h-6 w-6 rounded-full border-2 border-white bg-gradient-to-r sm:h-8 sm:w-8"></div>
               </div>
               <span className="text-center sm:text-left">
-                이미 <strong className="text-gray-800">10+</strong> 취준생이
+                이미 <strong className="text-gray-800">100+</strong> 취준생이
                 사용 중
               </span>
             </div>
