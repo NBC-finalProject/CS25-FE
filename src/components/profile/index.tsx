@@ -92,10 +92,10 @@ const ProfileSection: React.FC = () => {
   ];
 
   return (
-    <Section className="bg-gray-50 py-12 sm:py-16 md:py-20">
+    <Section className="bg-gray-50 py-20 sm:py-24 md:py-28">
       <Container>
         {/* 페이지 헤더 */}
-        <div className="mx-auto mb-8 max-w-3xl text-center sm:mb-12">
+        <div className="mx-auto my-12 max-w-3xl text-center sm:my-20">
           <h1 className="mb-4 text-2xl font-bold text-gray-900 sm:mb-6 sm:text-3xl md:text-4xl">
             마이페이지
           </h1>

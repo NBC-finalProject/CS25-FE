@@ -123,13 +123,15 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
                 />
               </svg>
             </div>
-            <h4 className="mb-2 text-xl font-bold text-gray-900">구독 관리</h4>
-            <p className="mb-4 text-gray-700">
+            <h4 className="mb-2 font-bold text-gray-900 md:text-xl">
+              구독 관리
+            </h4>
+            <p className="mb-4 text-sm text-gray-700 md:text-base">
               현재 구독 중인 카테고리를 관리하고 설정을 변경할 수 있습니다.
             </p>
             <button
               onClick={handleEditSubscription}
-              className="rounded-lg bg-gradient-to-r from-purple-500 to-indigo-500 px-6 py-3 font-medium text-white shadow-sm transition-all duration-300 hover:from-purple-600 hover:to-indigo-600"
+              className="rounded-lg bg-gradient-to-r from-purple-500 to-indigo-500 px-6 py-3 font-semibold text-white shadow-sm transition-all duration-300 hover:from-purple-600 hover:to-indigo-600"
             >
               구독 설정 변경
             </button>
@@ -164,7 +166,7 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
               onClick={() => {
                 navigate("/?openSubscription=true");
               }}
-              className="inline-flex w-full items-center justify-center rounded-lg bg-gradient-to-r from-purple-500 to-indigo-500 px-4 py-2.5 text-sm font-medium text-white shadow-sm transition-all duration-300 hover:from-purple-600 hover:to-indigo-600 sm:w-auto sm:px-6 sm:py-3 sm:text-base"
+              className="inline-flex w-full items-center justify-center rounded-lg bg-gradient-to-r from-purple-500 to-indigo-500 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-all duration-300 hover:from-purple-600 hover:to-indigo-600 sm:w-auto sm:px-6 sm:py-3 sm:text-base"
             >
               지금 구독하기
             </button>
@@ -188,8 +190,8 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
               />
             </svg>
           </div>
-          <h4 className="mb-2 text-xl font-bold text-gray-900">학습 팁</h4>
-          <p className="text-gray-700">
+          <h4 className="mb-2 font-bold text-gray-900 md:text-xl">학습 팁</h4>
+          <p className="text-sm text-gray-700 md:text-base">
             {profile?.subscriptionId
               ? "꾸준한 문제 풀이를 통해 점수를 높이고 랭킹을 올려보세요!"
               : "구독하시면 더 체계적인 학습이 가능합니다!"}
