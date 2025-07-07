@@ -61,19 +61,29 @@ const Header: React.FC = () => {
         </div>
 
         <div className="flex items-center space-x-2 sm:space-x-4">
+          <button
+            onClick={() =>
+              (window.location.href =
+                "http://determined-visitor-52a.notion.site/CS25-223e2a3e053580888faef79fdf6bfbcf?pvs=74")
+            }
+            className="hover:text-brand-600 hover:bg-brand-50 rounded-lg px-2 py-1.5 text-sm font-bold text-gray-700 transition-all duration-300 sm:px-4 sm:py-2 sm:text-base"
+          >
+            <span className="sm:inline">팀소개</span>
+          </button>
+
           {isAuthenticated ? (
             // 로그인된 상태
             <div className="flex items-center space-x-2 sm:space-x-3">
               <button
                 onClick={() => navigate("/profile")}
-                className="hover:text-brand-600 hover:bg-brand-50 rounded-lg px-2 py-1.5 text-sm font-medium text-gray-700 transition-all duration-300 sm:px-4 sm:py-2 sm:text-base"
+                className="hover:text-brand-600 hover:bg-brand-50 rounded-lg px-2 py-1.5 text-sm font-bold text-gray-700 transition-all duration-300 sm:px-4 sm:py-2 sm:text-base"
               >
                 <span className="sm:inline">마이페이지</span>
               </button>
               <button
                 onClick={handleLogout}
                 disabled={logoutMutation.isPending}
-                className={`rounded-lg px-3 py-1.5 text-sm font-medium transition-all duration-300 sm:px-6 sm:py-2 sm:text-base ${
+                className={`rounded-lg px-3 py-1.5 text-sm font-bold transition-all duration-300 sm:px-6 sm:py-2 sm:text-base ${
                   logoutMutation.isPending
                     ? "cursor-not-allowed bg-gray-400 text-white"
                     : "from-brand-500 to-brand-600 hover:from-brand-600 hover:to-brand-700 bg-gradient-to-r text-white shadow-sm"
@@ -86,7 +96,7 @@ const Header: React.FC = () => {
             // 로그인되지 않은 상태
             <button
               onClick={openLoginModal}
-              className="from-brand-500 to-brand-600 hover:from-brand-600 hover:to-brand-700 rounded-lg bg-gradient-to-r px-4 py-1.5 text-sm font-medium text-white shadow-sm transition-all duration-300 sm:px-6 sm:py-2 sm:text-base"
+              className="from-brand-500 to-brand-600 hover:from-brand-600 hover:to-brand-700 rounded-lg bg-gradient-to-r px-4 py-1.5 text-sm font-bold text-white shadow-sm transition-all duration-300 sm:px-6 sm:py-2 sm:text-base"
             >
               로그인
             </button>

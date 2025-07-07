@@ -190,6 +190,25 @@ module.exports = {
             transform: "scaleX(1)",
           },
         },
+        "trail": {
+          "0%": {
+            transform: "rotate(0deg)",
+          },
+          "100%": {
+            transform: "rotate(360deg)",
+          },
+        },
+        "border-spin": {
+          "0%": {
+            "background-position": "0% 50%",
+          },
+          "50%": {
+            "background-position": "100% 50%",
+          },
+          "100%": {
+            "background-position": "0% 50%",
+          },
+        },
       },
       animation: {
         "fade-in-smooth": "fade-in-smooth 0.6s ease-out forwards",
@@ -204,6 +223,8 @@ module.exports = {
         "text-shimmer": "text-shimmer 3s ease-in-out infinite",
         "subscribe-pulse": "subscribe-pulse 2s ease-in-out infinite",
         "slideInX": "slideInX 1.2s ease-out forwards",
+        "trail": "trail 3s linear infinite",
+        "border-spin": "border-spin 3s ease-in-out infinite",
       },
     },
   },
