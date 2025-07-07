@@ -23,7 +23,13 @@ const FeaturesSection: React.FC = () => {
         </div>
       ),
       title: "AI 문제 생성",
-      description: "개인 수준에 맞는 CS 문제를 AI가 실시간 생성",
+      description: (
+        <>
+          개인 수준에 맞는 CS 문제를{" "}
+          <br className="hidden sm:block" />
+          AI가 실시간 생성
+        </>
+      ),
       details: "학습 패턴을 분석해 최적화된 문제 제공",
     },
     {
@@ -45,7 +51,13 @@ const FeaturesSection: React.FC = () => {
         </div>
       ),
       title: "AI 해설",
-      description: "문제와 함께 AI가 생성한 상세한 해설 제공",
+      description: (
+        <>
+          문제와 함께 AI가 생성한{" "}
+          <br className="hidden sm:block" />
+          상세한 해설 제공
+        </>
+      ),
       details: "코드 예시와 개념 설명으로 완벽 이해",
     },
     {
@@ -67,7 +79,13 @@ const FeaturesSection: React.FC = () => {
         </div>
       ),
       title: "데일리 메일",
-      description: "매일 아침 새로운 CS 지식을 메일로 전송",
+      description: (
+        <>
+          매일 아침 새로운 CS 지식을{" "}
+          <br className="hidden sm:block" />
+          메일로 전송
+        </>
+      ),
       details: "알고리즘, 자료구조, 운영체제, 네트워크 등",
     },
   ];
@@ -83,7 +101,7 @@ const FeaturesSection: React.FC = () => {
             </span>
           </h2>
           <p className="text-base leading-relaxed text-gray-600 sm:text-lg md:text-xl">
-            AI가 생성하고 해설하는{" "}
+            AI가 생성하고 해설하는 <br className="blcok sm:hidden" />
             <span className="text-brand-600 inline-block cursor-default font-semibold transition-transform hover:scale-105">
               개인화된
             </span>{" "}
@@ -96,7 +114,7 @@ const FeaturesSection: React.FC = () => {
           {features.map((feature, index) => (
             <div
               key={index}
-              className="group rounded-xl border border-gray-100 bg-white p-6 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-lg sm:rounded-2xl sm:p-8"
+              className="group break-keep rounded-xl border border-gray-100 bg-white p-6 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-lg sm:rounded-2xl sm:p-8"
               style={{
                 animationDelay: `${index * 200}ms`,
               }}
