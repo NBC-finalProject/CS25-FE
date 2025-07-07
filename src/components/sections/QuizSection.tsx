@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import Container from "../common/Container";
 import Section from "../common/Section";
 import QuizComponent from "../common/QuizComponent";
+import { useModal } from "../../hooks/useModal";
 
 interface QuizData {
   id: string;
@@ -17,6 +18,7 @@ interface QuizData {
 const QuizSection: React.FC = () => {
   const [showResult, setShowResult] = useState(false);
   const [userAnswer, setUserAnswer] = useState<number | null>(null);
+  const { openModal } = useModal();
 
   // 샘플 퀴즈 데이터 (API 실패시 fallback)
   const sampleQuiz: QuizData = {
@@ -48,7 +50,7 @@ const QuizSection: React.FC = () => {
 
   if (!currentQuiz) {
     return (
-      <Section className="bg-gray-50 py-20">
+      <Section className="bg-gray-50 py-12 sm:py-20">
         <Container>
           <div className="text-center">
             <p className="text-red-600">퀴즈를 불러올 수 없습니다.</p>
@@ -62,16 +64,16 @@ const QuizSection: React.FC = () => {
   if (showResult) {
     const isCorrect = userAnswer === currentQuiz.correctAnswer;
     return (
-      <Section className="bg-gray-50 py-20">
+      <Section className="bg-gray-50 py-12 sm:py-20">
         <Container>
           <div className="mx-auto max-w-3xl text-center">
             <div
-              className={`mb-8 inline-flex items-center rounded-full px-6 py-3 ${
+              className={`mb-6 inline-flex items-center rounded-full px-4 py-2 sm:mb-8 sm:px-6 sm:py-3 ${
                 isCorrect ? "bg-green-100" : "bg-red-100"
               }`}
             >
               <span
-                className={`text-lg font-bold ${
+                className={`text-base font-bold sm:text-lg ${
                   isCorrect ? "text-green-700" : "text-red-700"
                 }`}
               >
@@ -79,13 +81,15 @@ const QuizSection: React.FC = () => {
               </span>
             </div>
 
-            <div className="mb-8 rounded-2xl border border-gray-100 bg-white p-8 shadow-sm">
-              <h3 className="mb-4 text-xl font-bold text-gray-900">해설</h3>
-              <p className="leading-relaxed text-gray-700">
+            <div className="mb-6 rounded-2xl bg-white p-4 shadow-sm sm:mb-8 sm:border sm:border-gray-100 sm:p-8">
+              <h3 className="mb-3 text-lg font-bold text-gray-900 sm:mb-4 sm:text-xl">
+                해설
+              </h3>
+              <p className="text-sm leading-relaxed text-gray-700 sm:text-base">
                 {currentQuiz.explanation}
               </p>
-              <div className="bg-brand-50 mt-6 rounded-xl p-4">
-                <p className="text-brand-800 font-medium">
+              <div className="bg-brand-50 mt-4 rounded-xl p-3 sm:mt-6 sm:p-4">
+                <p className="text-brand-800 text-sm font-medium sm:text-base">
                   정답:{" "}
                   {
                     currentQuiz.options.find(
@@ -98,7 +102,7 @@ const QuizSection: React.FC = () => {
 
             <button
               onClick={resetQuiz}
-              className="from-brand-500 to-brand-600 hover:from-brand-600 hover:to-brand-700 rounded-full bg-gradient-to-r px-8 py-3 text-lg font-semibold text-white transition-all duration-300 hover:scale-105 hover:shadow-lg"
+              className="from-brand-500 to-brand-600 hover:from-brand-600 hover:to-brand-700 rounded-full bg-gradient-to-r px-6 py-2.5 text-base font-semibold text-white transition-all duration-300 hover:scale-105 hover:shadow-lg sm:px-8 sm:py-3 sm:text-lg"
             >
               다시 풀어보기
             </button>
@@ -109,32 +113,33 @@ const QuizSection: React.FC = () => {
   }
 
   return (
-    <Section className="bg-gray-50 py-20">
+    <Section className="bg-gray-50 py-12 sm:py-20">
       <Container>
-        <div className="mx-auto mb-12 max-w-3xl text-center">
-          <div className="bg-brand-100 mb-8 inline-flex items-center rounded-full px-6 py-2">
-            <span className="text-brand-700 text-sm font-medium">
+        <div className="mx-auto mb-8 max-w-3xl text-center sm:mb-12">
+          <div className="bg-brand-100 mb-6 inline-flex items-center rounded-full px-4 py-1.5 sm:mb-8 sm:px-6 sm:py-2">
+            <span className="text-brand-700 text-xs font-medium sm:text-sm">
               오늘의 CS 문제
             </span>
           </div>
 
-          <h2 className="mb-6 text-3xl font-bold text-gray-900 md:text-4xl">
+          <h2 className="mb-4 text-2xl font-bold text-gray-900 sm:mb-6 sm:text-3xl md:text-4xl">
             AI가 준비한{" "}
             <span className="from-brand-600 to-navy-600 bg-gradient-to-r bg-clip-text text-transparent">
               오늘의 연습문제
             </span>
           </h2>
 
-          <p className="text-lg leading-relaxed text-gray-600">
+          <p className="text-base leading-relaxed text-gray-600 sm:text-lg">
             매일 새로운 CS 지식을 확인하고 실력을 향상시켜보세요
           </p>
         </div>
 
-        <div className="rounded-2xl border border-gray-100 bg-white p-8 shadow-sm">
+        <div className="rounded-2xl bg-white p-4 shadow-sm sm:border sm:border-gray-100 sm:p-8">
           <QuizComponent
             question={currentQuiz.question}
             options={currentQuiz.options}
             onSubmit={handleQuizSubmit}
+            openModal={openModal}
           />
         </div>
       </Container>

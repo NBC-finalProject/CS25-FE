@@ -32,13 +32,13 @@ const HeroSection: React.FC<HeroSectionProps> = ({ onSubscribeClick }) => {
     <Section className="to-brand-50 bg-gradient-to-br from-gray-50 via-blue-50 pb-20 pt-16 text-center sm:pb-32 sm:pt-20">
       <Container>
         <div className="mx-auto max-w-4xl">
-          <div className="bg-brand-100 mb-6 inline-flex items-center rounded-full px-4 py-2 sm:mb-8 sm:px-6">
+          {/* <div className="bg-brand-100 mb-6 inline-flex items-center rounded-full px-4 py-2 sm:mb-8 sm:px-6">
             <span className="text-brand-700 text-xs font-medium sm:text-sm">
               AI가 생성하고 해설하는 CS 지식
             </span>
-          </div>
+          </div> */}
 
-          <h1 className="mb-4 text-3xl font-bold leading-tight tracking-tight text-gray-900 sm:mb-6 sm:text-4xl md:text-5xl lg:text-6xl">
+          <h1 className="my-8 text-3xl font-bold tracking-tight text-gray-900 sm:my-12 sm:text-4xl md:text-5xl lg:text-6xl">
             AI가 전하는
             <br />
             <span className="from-brand-600 to-navy-600 bg-gradient-to-r bg-clip-text text-transparent">
@@ -48,7 +48,7 @@ const HeroSection: React.FC<HeroSectionProps> = ({ onSubscribeClick }) => {
             메일로 만나보세요!
           </h1>
 
-          <div className="mx-auto mb-8 max-w-3xl px-4 sm:mb-12 sm:px-0">
+          <div className="mx-auto mb-10 max-w-3xl px-4 sm:mb-14 sm:px-0">
             {/* 메인 설명 텍스트 */}
             {/* <div className="mb-6 text-center">
               <p className="bg-gradient-to-r from-gray-800 via-gray-700 to-gray-600 bg-clip-text text-lg font-medium leading-relaxed text-transparent sm:text-xl md:text-2xl lg:text-3xl">
@@ -65,10 +65,13 @@ const HeroSection: React.FC<HeroSectionProps> = ({ onSubscribeClick }) => {
             </div> */}
 
             {/* 로그인 없이 구독 가능 알림 */}
-            <div className="mb-4 sm:mb-6">
-              <div className="relative inline-block rounded-full p-[2px] bg-gradient-to-r from-blue-100 via-blue-500 to-blue-100 animate-border-spin" style={{ backgroundSize: "200% 200%" }}>
+            <div className="mb-6 sm:mb-8">
+              <div
+                className="animate-border-spin relative inline-block rounded-full bg-gradient-to-r from-blue-100 via-blue-500 to-blue-100 p-[2px]"
+                style={{ backgroundSize: "200% 200%" }}
+              >
                 {/* 내용 */}
-                <div className="relative inline-flex items-center rounded-full bg-blue-50 border border-blue-50 px-4 py-2 sm:px-6 sm:py-3">
+                <div className="relative inline-flex items-center rounded-full border border-blue-50 bg-blue-50 px-4 py-2 sm:px-6 sm:py-3">
                   <svg
                     className="mr-2 h-4 w-4 text-blue-600 sm:h-5 sm:w-5"
                     fill="currentColor"
@@ -80,7 +83,7 @@ const HeroSection: React.FC<HeroSectionProps> = ({ onSubscribeClick }) => {
                       clipRule="evenodd"
                     />
                   </svg>
-                  <span className="text-sm font-semibold text-blue-700 sm:text-base">
+                  <span className="text-xs font-semibold text-blue-700 md:text-base">
                     로그인 없이도 누구나 바로 구독할 수 있어요!
                   </span>
                 </div>
@@ -88,7 +91,7 @@ const HeroSection: React.FC<HeroSectionProps> = ({ onSubscribeClick }) => {
             </div>
 
             {/* 설명 텍스트 */}
-            <p className="mt-4 text-center text-sm text-gray-500 sm:mt-6 sm:text-base">
+            <p className="mt-6 text-center text-sm leading-relaxed text-gray-500 sm:mt-8 sm:text-base">
               개인 수준에 맞는 맞춤형 문제로
               <br className="block sm:hidden" />
               <span className="hidden sm:inline"> </span>효율적인 학습을

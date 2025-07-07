@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import LandingPage from "./components/LandingPage";
 import QuizSection from "./components/sections/QuizSection";
@@ -44,7 +44,7 @@ function App() {
                 }
               />
               <Route path="/todayQuiz" element={<TodayQuizPage />} />
-              <Route path="/quiz" element={<QuizSection />} />
+              <Route path="/quiz" element={<Navigate to="/" replace />} />
               <Route path="/mailform" element={<TodayEmailFormSection />} />
               <Route
                 path="/verification-email"

@@ -27,7 +27,9 @@ const TodayEmailFormSection: React.FC = () => {
           </h2>
 
           <p className="mb-6 text-base leading-relaxed text-gray-600 sm:mb-8 sm:text-lg">
-            아래와 같은 형태의 맞춤형 메일을 받아보실 수 있습니다.
+            아래와 같은 형태의 <br className="block sm:hidden" />
+            <span className="hidden sm:inline"></span>맞춤형 메일을 받아보실 수
+            있습니다.
           </p>
         </div>
 
