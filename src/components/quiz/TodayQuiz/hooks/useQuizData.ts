@@ -58,7 +58,9 @@ export const useQuizData = (
         quizData = null;
       }
 
-      // 퀴즈 데이터와 함께 선택 비율도 가져오기 (객관식만)
+      // 퀴즈 데이터와 함께 선택 비율도 가져오기
+      // if (quizData && quizId) { (TODO: 모든 타입)
+      // (객관식만)
       if (
         quizData &&
         quizId &&
