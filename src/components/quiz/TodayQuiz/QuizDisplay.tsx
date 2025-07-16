@@ -50,7 +50,7 @@ const QuizDisplay: React.FC<QuizDisplayProps> = ({
       </p>
 
       {/* Total Count */}
-      {totalCount && (
+      {totalCount !== undefined && (
         <div className="mb-6 flex flex-col items-center justify-center gap-3 sm:flex-row">
           <div className="inline-flex items-center rounded-full bg-blue-100 px-4 py-2">
             <svg
