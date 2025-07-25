@@ -13,6 +13,8 @@ import SubscriptionModal from "./components/common/SubscriptionModal";
 import { ModalProvider } from "./contexts/ModalContext";
 import ModalManager from "./components/common/ModalManager";
 import NotFoundPage from "./components/common/NotFoundPage";
+import PrivacyPolicy from "./components/PrivacyPolicy";
+import TermsOfService from "./components/TermsOfService";
 import "./App.css";
 import ProfileSection from "./components/sections/ProfileSection";
 
@@ -56,6 +58,8 @@ function App() {
                 element={<SubscriptionEditSection />}
               />
               <Route path="/profile" element={<ProfileSection />} />
+              <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+              <Route path="/terms-of-service" element={<TermsOfService />} />
               <Route path="*" element={<NotFoundPage />} />
             </Routes>
             <Footer />
