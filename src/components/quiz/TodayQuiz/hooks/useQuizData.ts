@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { quizAPI } from "../../../../utils/api";
 import { QuizData, SelectionRatesData } from "../types";
@@ -6,7 +6,7 @@ import {decryptAesCbcB64, looksLikeBase64} from "../../../../utils/crypto";
 
 
 // 환경변수에서 키 읽기 (예시)
-const AES_KEY = import.meta.env.VITE_AES_KEY || process.env.REACT_APP_AES_KEY || "";
+const AES_KEY = import.meta.env.VITE_AES_KEY || process.env.REACT_APP_AES_KEY || "123456789";
 
 async function decryptQuizFields(quizData: QuizData): Promise<QuizData> {
     if (!AES_KEY) return quizData; // 키 없으면 그대로
