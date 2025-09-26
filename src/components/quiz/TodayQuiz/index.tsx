@@ -21,7 +21,7 @@ const TodayQuizSection: React.FC = () => {
   const subscriptionId = searchParams.get("subscriptionId");
   const quizId = searchParams.get("quizId");
 
-  // 퀴즈 데이터 관리
+  // 퀴즈 데이터 관리  get Today quiz
   const {
     displayQuiz,
     isLoading,
@@ -31,7 +31,7 @@ const TodayQuizSection: React.FC = () => {
     setAnimatedPercentages,
   } = useQuizData(subscriptionId, quizId);
 
-  // 퀴즈 제출 관리
+  // 퀴즈 제출 관리  submit today quiz answer
   const {
     isSubmitted,
     answerResult,
