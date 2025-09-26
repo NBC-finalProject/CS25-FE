@@ -1,7 +1,39 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { quizAPI } from "../../../../utils/api";
 import { QuizData, SelectionRatesData } from "../types";
+import {decryptAesCbcB64, looksLikeBase64} from "../../../../utils/crypto";
+
+
+// 환경변수에서 키 읽기 (예시)
+const AES_KEY = import.meta.env.VITE_AES_KEY || "1234567890123456";
+
+async function decryptQuizFields(quizData: QuizData): Promise<QuizData> {
+    if (!AES_KEY) return quizData; // 키 없으면 그대로
+
+    const cloned = { ...quizData };
+
+    if (cloned.quizType === "MULTIPLE_CHOICE") {
+        if (looksLikeBase64(cloned.answerNumber)) {
+            cloned.answerNumber = await decryptAesCbcB64(<string>cloned.answerNumber, AES_KEY);
+        }
+        if (looksLikeBase64(cloned.commentary)) {
+            cloned.commentary = await decryptAesCbcB64(cloned.commentary, AES_KEY);
+        }
+    } else {
+        // SHORT_ANSWER / SUBJECTIVE
+        // back이 answer/commentary 둘 다 암호화해서 내려준다는 가정
+        if ("answer" in cloned && looksLikeBase64((cloned as any).answer)) {
+            (cloned as any).answer = await decryptAesCbcB64((cloned as any).answer, AES_KEY);
+        }
+        if (looksLikeBase64(cloned.commentary)) {
+            cloned.commentary = await decryptAesCbcB64(cloned.commentary, AES_KEY);
+        }
+    }
+
+    return cloned;
+}
+
 
 // 임시 데이터
 const fakeTodayQuiz: QuizData = {
@@ -79,7 +111,11 @@ export const useQuizData = (
         }
       }
 
-      return quizData as QuizData;
+        if (quizData) {
+            quizData = await decryptQuizFields(quizData as QuizData);
+        }
+
+        return quizData as QuizData;
     },
     enabled: !!(subscriptionId && quizId),
   });
